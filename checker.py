@@ -19,7 +19,7 @@ class ModelSprite(arcade.Sprite):
 
     def sync_with_model(self):
         if self.model:
-                self.set_position(self.model.x, self.model.y)
+            self.set_position(self.model.x, self.model.y)
 
     def draw(self):
         self.sync_with_model()
@@ -35,7 +35,7 @@ class CheckerGameWindow(arcade.Window):
         self.world = World(BOTTOM_LEFT)
         self.map = self.world.map
         self.control_sprite = ModelSprite(
-            src['control'], model=self.world.control)
+            src['control'], model=self.world.control_player)
        
     def on_draw(self):
         arcade.start_render()
@@ -46,8 +46,8 @@ class CheckerGameWindow(arcade.Window):
     def animate(self, delta):
         self.map.animate(delta)
 
-    def on_key_release(self, key, key_modifiers):
-        self.world.on_key_release(key, key_modifiers)
+    def on_mouse_release(self, x, y, button, modifiers):
+        self.world.on_mouse_release(x, y, button, modifiers)
 
 if __name__ == '__main__':
     window = CheckerGameWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
