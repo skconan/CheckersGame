@@ -5,7 +5,7 @@ SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 700
 PLAYER_WIDTH = 63
 BLOCK_SIZE = 79
-TOP_LEFT = (235, SCREEN_HEIGHT - 75)
+TOP_LEFT = (237, SCREEN_HEIGHT - 75)
 BOTTOM_LEFT = (237, 73)
 
 src = {"white_player": "images/player00.fw.png",
@@ -23,10 +23,10 @@ class Map:
         self.board_str = [
             '.w.w.w.w',
             'w.w.w.w.',
-            '........',
-            '........',
-            '........',
-            '........',
+            '.-.-.-.-',
+            '-.-.-.-.',
+            '.-.-.-.-',
+            '-.-.-.-.',
             '.r.r.r.r',
             'r.r.r.r.',
         ]
@@ -40,13 +40,17 @@ class Map:
                 elif self.board_str[r][c] == "r":
                     self.board[r].append(count)
                     count += 1
-                else:
+                elif self.board_str[r][c] == "-":
                     self.board[r].append(0)
+                else:
+                    self.board[r].append(-1)
         for r in range(0, 8):
             print(self.board[r])
 
     def animate(self, delta):
-        print('a')
+        if len(self.player) > 0:
+            def on_mouse_release(self, x, y, button, modifiers):
+                self.player[1].on_mouse_release(x, y, button, modifiers)
 
     def draw_player(self):
         count = 1
@@ -55,19 +59,23 @@ class Map:
             for c in range(0, 8):
                 if 1 <= self.board[r][c] <= 8:
                     self.player.append(
-                        Player(TOP_LEFT[0] + c * 79, TOP_LEFT[1] - r * 79, 'w'))
+                        Player(TOP_LEFT[0] + c * BLOCK_SIZE, TOP_LEFT[1] - r * BLOCK_SIZE, 'w'))
                 elif 8 < self.board[r][c] <= 16:
                     self.player.append(
-                        Player(TOP_LEFT[0] + c * 79, TOP_LEFT[1] - r * 79, 'r'))
+                        Player(TOP_LEFT[0] + c * BLOCK_SIZE, TOP_LEFT[1] - r * BLOCK_SIZE, 'r'))
 
-    def select(self, x, y):
-        if not self.check_select:
-            self.position_select = [x, y]
-            self.player_select = self.board[y][x]
-            self.board[y][x] = 0
-        else :
-            self.board[y][x] = self.player_select
-        self.check_select = not self.check_select
+    def select(self, r, c):
+        if not self.check_select and self.board[r][c] > 8:
+            print("select", r, c)
+            self.position_select = [r, c]
+            self.player_select = self.board[r][c]
+            self.board[r][c] = 0
+            self.check_select = not self.check_select
+        elif (self.check_select and 0 <= self.board[r][c] <= 8 and r == self.position_select[0] - 1
+              and self.position_select[1] - 1 <= c <= self.position_select[1] + 1):
+            print("release", r, c)
+            self.board[r][c] = self.player_select
+            self.check_select = not self.check_select
 
 
 class Control:
@@ -87,6 +95,15 @@ class Control:
             self.y += BLOCK_SIZE * -self.DIR_DIRECTION[dir][1]
             self.y_map += self.DIR_DIRECTION[dir][1]
 
+    def get_mouse_position_map(self, x, y):
+        r, c = -1, -1
+        for i in range(0, 8):
+            for j in range(0, 8):
+                if (x - (TOP_LEFT[0] + j * BLOCK_SIZE))**2 + (y - (TOP_LEFT[1] - i * BLOCK_SIZE))**2 <= (BLOCK_SIZE / 2 - 1)**2:
+                    r, c = i, j
+                    print(r, c)
+        return r, c
+
 
 class Player():
 
@@ -103,17 +120,11 @@ class Player():
 class World:
 
     def __init__(self, BOTTOM_LEFT):
-        self.control = Control(BOTTOM_LEFT[0], BOTTOM_LEFT[1])
+        self.control_player = Control(BOTTOM_LEFT[0], BOTTOM_LEFT[1])
         self.map = Map()
 
-    def on_key_release(self, key, key_modifiers):
-        if key == arcade.key.LEFT:
-            self.control.move(0)
-        elif key == arcade.key.RIGHT:
-            self.control.move(1)
-        elif key == arcade.key.UP:
-            self.control.move(2)
-        elif key == arcade.key.DOWN:
-            self.control.move(3)
-        elif key == arcade.key.SPACE:
-            self.map.select(self.control.x_map, self.control.y_map)
+    def on_mouse_release(self, x, y, button, modifiers):
+        if button == arcade.MOUSE_BUTTON_LEFT and 200 < x < 830 and 40 < y < 670:
+            self.left_down = False
+            r, c = self.control_player.get_mouse_position_map(x, y)
+            self.map.select(r, c)
