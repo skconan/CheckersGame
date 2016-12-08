@@ -1,5 +1,5 @@
 import arcade
-from models import World, Control, Map
+from models import World, Control, Map, WorldRenderer
 
 
 SCREEN_WIDTH = 1024
@@ -33,18 +33,15 @@ class CheckerGameWindow(arcade.Window):
         self.bg = arcade.Sprite(src['bg'])
         self.bg.set_position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         self.world = World(BOTTOM_LEFT)
-        self.map = self.world.map
-        self.control_sprite = ModelSprite(
-            src['control'], model=self.world.control_player)
-       
+        self.worldRenderer = WorldRenderer(self.world)
+
     def on_draw(self):
         arcade.start_render()
         self.bg.draw()
-        self.control_sprite.draw()
-        self.map.draw_player()
-    
+        self.worldRenderer.on_draw()
+ 
     def animate(self, delta):
-        self.map.animate(delta)
+        self.world.animate(delta)
 
     def on_mouse_release(self, x, y, button, modifiers):
         self.world.on_mouse_release(x, y, button, modifiers)
