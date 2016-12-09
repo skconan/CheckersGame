@@ -46,7 +46,7 @@ class Bot():
         for r in range(0, 8):
             for c in range(0, 8):
                 if 1 <= board[r][c] <= 8:
-                    print(board[r][c])
+                    # print(board[r][c])
                     for i, j in self.direction:
                         if 0 <= r+i <= 7 and 0 <= c+j <= 7: 
                             if board[r+i][c+j] != 0:
@@ -55,7 +55,7 @@ class Bot():
                                 score = self.calculate_score(board, r, c, i, j)
                         else :
                             score = 0
-                        print ("direction ",r,c, r+i, c+j,score)
+                        # print ("direction ",r,c, r+i, c+j,score)
                         if(score > max.score):
                             print(r, c, r + i, c + j)
                             if score == 1:
@@ -77,9 +77,9 @@ class Bot():
             print(board[i])
 
     def play(self, board_origin):
-        self.print_board(board_origin)
+        # self.print_board(board_origin)
         tmp = self.new_board(board_origin)
-        self.print_board(tmp)
+        # self.print_board(tmp)
         return tmp
 
 
