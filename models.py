@@ -17,6 +17,7 @@ class Map:
         self.position_select = [-1, -1]
         self.player_select = 0
         self.bot = Bot()
+        self.status = 'Player'
         self.board = [[-1, 1, -1, 2, -1, 3, -1, 4],
                       [5, -1, 6, -1, 7, -1, 8, -1],
                       [-1, 0, -1, 0, -1, 0, -1, 0],
@@ -66,21 +67,30 @@ class Map:
                         TOP_LEFT[0] + c * BLOCK_SIZE, TOP_LEFT[1] - r * BLOCK_SIZE)
 
     def out_of_range(self, r, c):
-        if 1 <= r <= 7 and 1 <= c <= 7:
-            return True
-        return False
+        if 0 <= r <= 7 and 0 <= c <= 7:
+            return False
+        return True
 
     def it_is_bot(self, r, c):
+        if self.out_of_range(r, c):
+            return False
+
         if 1 <= self.board[r][c] <= 8:
             return True
         return False
 
     def it_is_player(self, r, c):
+        if self.out_of_range(r, c):
+            return False
+
         if 9 <= self.board[r][c] <= 16:
             return True
         return False
 
     def it_is_blank(self, r, c):
+        if self.out_of_range(r, c):
+            return False
+
         if self.board[r][c] == 0:
             return True
         return False
@@ -116,20 +126,22 @@ class Map:
             r_stop = r_current
 
             check_close = False
+
+            if not self.it_is_bot(r_stop - r_step, c_stop - c_step):
+                return False
             for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
                 print("R eat", r, c)
-                if self.out_of_range(r, c):
-                    if self.it_is_bot(r, c):
-                        if check_close == False:
-                            eat_list.append([r, c])
-                            check_close = True
-                        else:
-                            return False
-                    elif self.it_is_player(r, c):
+                if self.it_is_bot(r, c):
+                    if check_close == False:
+                        eat_list.append([r, c])
+                        check_close = True
+                    else:
                         return False
-                    elif self.it_is_blank(r, c):
-                        check_close = False
-                    print(check_close)
+                elif self.it_is_player(r, c):
+                    return False
+                elif self.it_is_blank(r, c):
+                    check_close = False
+                print(check_close)
             if len(eat_list) > 0:
                 print("R eatttt")
                 for r, c in eat_list:
@@ -162,7 +174,19 @@ class Map:
             return True
         return False
 
+    def can_eat(self, r, c):
+        print("can eat", r, c)
+        if self.it_is_bot(r - 1, c + 1) and self.it_is_blank(r - 2, c + 2):
+            print("c+2", r, c)
+            return True
+        elif self.it_is_bot(r - 1, c - 1) and self.it_is_blank(r - 2, c - 2):
+            print("c-2", r, c)
+            return True
+        return False
+
     def select_player(self, r, c):
+        if self.status == "Bot":
+            pass
         if not self.check_select and self.board[r][c] > 8:
             print("select", r, c)
             self.position_select = [r, c]
@@ -175,13 +199,22 @@ class Map:
             self.board[r][c] = self.player_select
             self.check_select = not self.check_select
 
-        elif (self.check_select and self.board[r][c] == 0
-              and (self.eat(self.position_select[0], self.position_select[1], r, c)
-                   or self.walk(self.position_select[0], self.position_select[1], r, c))):
-            print("release", r, c)
-            self.board[r][c] = self.player_select
+        elif (self.check_select and self.it_is_blank(r, c)):
+            if self.walk(self.position_select[0], self.position_select[1], r, c) and not self.can_eat(self.position_select[0], self.position_select[1]):
+                print("release", r, c)
+                self.board[r][c] = self.player_select
+                self.check_select = not self.check_select
+                self.status = "Bot"
+            elif self.eat(self.position_select[0], self.position_select[1], r, c):
+                print("release", r, c)
+                self.board[r][c] = self.player_select
+                self.check_select = not self.check_select
+                if not self.can_eat(r, c):
+                    self.status = "Bot"
+
+        if(self.status == "Bot"):
             self.board = self.bot.play(self.board)
-            self.check_select = not self.check_select
+            self.status = "Player"
 
 
 class Control:
