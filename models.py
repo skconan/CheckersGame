@@ -57,13 +57,32 @@ class Map:
             for c in range(0, 8):
                 if 1 <= self.board[r][c] <= 16:
                     self.player[self.board[r][c]].player.draw()
-    
+
     def update_player(self):
         for r in range(0, 8):
             for c in range(0, 8):
                 if 1 <= self.board[r][c] <= 16:
-                    self.player[self.board[r][c]].player.set_position(TOP_LEFT[0] + c * BLOCK_SIZE, TOP_LEFT[1] - r * BLOCK_SIZE)
+                    self.player[self.board[r][c]].player.set_position(
+                        TOP_LEFT[0] + c * BLOCK_SIZE, TOP_LEFT[1] - r * BLOCK_SIZE)
 
+    def eat(self, r_origin, c_origin, r_current, c_current):
+        delta_r = (r_current - r_origin)
+        delta_c = (c_current - c_origin)
+        r_white, c_white = r_origin + \
+            int(delta_r / 2), c_origin + int(delta_c / 2)
+        if delta_r == -2 and abs(delta_c) == 2 and 1 <= self.board[r_white][c_white] <= 8:
+            self.board[r_white][c_white] = 0
+            return True
+        return False
+
+    def walk(self, r_origin, c_origin, r_current, c_current):
+        delta_r = (r_current - r_origin)
+        delta_c = (c_current - c_origin)
+
+        if(delta_r == -1 and abs(delta_c) == 1):
+            self.board[r_current][c_current] = 0
+            return True
+        return False
 
     def select_player(self, r, c):
         if not self.check_select and self.board[r][c] > 8:
@@ -72,23 +91,24 @@ class Map:
             self.player_select = self.board[r][c]
             self.board[r][c] = 0
             self.check_select = not self.check_select
-        elif (self.check_select and 0 <= self.board[r][c] <= 8
-              and self.position_select[0] - 1 <= r <= self.position_select[0]
-              and self.position_select[1] - 1 <= c <= self.position_select[1] + 1):
+
+        elif (self.check_select and self.board[r][c] == 0
+              and (self.eat(self.position_select[0], self.position_select[1], r, c)
+                   or self.walk(self.position_select[0], self.position_select[1], r, c))):
+            print("release", r, c)
+            self.board[r][c] = self.player_select
+            self.board = self.bot.play(self.board)
+            self.check_select = not self.check_select
+        
+        elif self.position_select == [r,c]:
             print("release", r, c)
             self.board[r][c] = self.player_select
             self.check_select = not self.check_select
-            self.board = self.bot.play(self.board)
-
 
 class Control:
-    DIR_DIRECTION = [[-1, 0], [1, 0], [0, -1], [0, 1]]
 
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.x_map = 0
-        self.y_map = 7
+    def __init__(self):
+        pass
 
     def get_mouse_position_map(self, x, y):
         r, c = -1, -1
@@ -117,8 +137,8 @@ class Player():
 
 class World:
 
-    def __init__(self, BOTTOM_LEFT):
-        self.control = Control(BOTTOM_LEFT[0], BOTTOM_LEFT[1])
+    def __init__(self):
+        self.control = Control()
         self.map = Map()
         self.map.new_player()
 
