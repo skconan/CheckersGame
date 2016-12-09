@@ -4,7 +4,6 @@ from bot import Bot
 
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 700
-PLAYER_WIDTH = 63
 BLOCK_SIZE = 79
 TOP_LEFT = (237, SCREEN_HEIGHT - 75)
 BOTTOM_LEFT = (237, 73)
@@ -13,9 +12,9 @@ BOTTOM_LEFT = (237, 73)
 class Map:
 
     def __init__(self):
+        self.player = []
         self.check_select = False
         self.position_select = [-1, -1]
-        self.player = []
         self.player_select = 0
         self.bot = Bot()
         self.board = [[-1, 1, -1, 2, -1, 3, -1, 4],
@@ -26,9 +25,6 @@ class Map:
                       [0, -1, 0, -1, 0, -1, 0, -1],
                       [-1, 9, -1, 10, -1, 11, -1, 12],
                       [13, -1, 14, -1, 15, -1, 16, -1]]
-
-        for r in range(0, 8):
-            print(self.board[r])
 
     def animate(self, delta):
         self.update_player()
@@ -53,10 +49,19 @@ class Map:
                 if 1 <= self.board[r][c] <= 16:
                     self.player[self.board[r][c]].player.draw()
 
+    def update_king(self, r, c):
+        if 1 <= self.board[r][c] <= 8 and r == 7:
+            self.player[self.board[r][c]].character = 'W'
+            self.player[self.board[r][c]].update_img()
+        elif 9 <= self.board[r][c] <= 16 and r == 0:
+            self.player[self.board[r][c]].character = 'R'
+            self.player[self.board[r][c]].update_img()
+
     def update_player(self):
         for r in range(0, 8):
             for c in range(0, 8):
                 if 1 <= self.board[r][c] <= 16:
+                    self.update_king(r, c)
                     self.player[self.board[r][c]].player.set_position(
                         TOP_LEFT[0] + c * BLOCK_SIZE, TOP_LEFT[1] - r * BLOCK_SIZE)
 
@@ -123,17 +128,22 @@ class Player():
                     "white_king": "images/player00-k.fw.png",
                     "red_player": "images/player01.fw.png",
                     "red_king": "images/player01-k.fw.png"}
-
-        if character == 'w':
-            self.player = arcade.Sprite(self.src['white_player'])
-        elif character == 'W':
-            self.player = arcade.Sprite(self.src['white_king'])
-        elif character == 'r':
-            self.player = arcade.Sprite(self.src['red_player'])
-        elif character == 'R':
-            self.player = arcade.Sprite(self.src['red_king'])
-        self.player.set_position(x, y)
         self.character = character
+        self.update_img()
+        self.player.set_position(x, y)
+        self.king = False
+
+    def update_img(self):
+        if self.character == 'w':
+            self.player = arcade.Sprite(self.src['white_player'])
+        elif self.character == 'W' and self.king == False:
+            self.player = arcade.Sprite(self.src['white_king'])
+            self.king = True
+        elif self.character == 'r':
+            self.player = arcade.Sprite(self.src['red_player'])
+        elif self.character == 'R' and self.king == False:
+            self.player = arcade.Sprite(self.src['red_king'])
+            self.king = True
 
 
 class World:
