@@ -70,9 +70,24 @@ class Map:
         delta_c = (c_current - c_origin)
         r_white, c_white = r_origin + \
             int(delta_r / 2), c_origin + int(delta_c / 2)
-        if delta_r == -2 and abs(delta_c) == 2 and 1 <= self.board[r_white][c_white] <= 8:
-            self.board[r_white][c_white] = 0
-            return True
+        if self.player[self.board[r_origin][c_origin]] == 'w':
+            if delta_r == -2 and abs(delta_c) == 2 and 1 <= self.board[r_white][c_white] <= 8:
+                self.board[r_white][c_white] = 0
+                return True
+
+        elif self.player[self.board[r_origin][c_origin]] == 'W':
+            eat_list = []
+            for r in range(r_origin, r_current):
+                for c in range(c_origin, c_current):
+                    if 1 <= r <= 7 and 1 <= c <= 7:
+                        if 1 <= self.player[self.board[r][c]] <= 8:
+                            eat_list.append([r, c])
+                        elif 9 <= self.player[self.board[r][c]] <= 16:
+                            return False
+            if len(eat_list) > 0:
+                for r, c in eat_list:
+                    self.board[r][c] = 0
+                return True
         return False
 
     def walk(self, r_origin, c_origin, r_current, c_current):
