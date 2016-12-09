@@ -9,11 +9,6 @@ BLOCK_SIZE = 79
 TOP_LEFT = (237, SCREEN_HEIGHT - 75)
 BOTTOM_LEFT = (237, 73)
 
-src = {"white_player": "images/player00.fw.png",
-       "white_king": "images/player00-k.fw.png",
-       "red_player": "images/player01.fw.png",
-       "red_king": "images/player01-k.fw.png"}
-
 
 class Map:
 
@@ -41,7 +36,7 @@ class Map:
     def on_draw(self):
         self.draw_player()
 
-    def new_player(self):
+    def generate_player(self):
         self.player.append(0)
         for r in range(0, 8):
             for c in range(0, 8):
@@ -99,11 +94,12 @@ class Map:
             self.board[r][c] = self.player_select
             self.board = self.bot.play(self.board)
             self.check_select = not self.check_select
-        
-        elif self.position_select == [r,c]:
+
+        elif self.position_select == [r, c]:
             print("release", r, c)
             self.board[r][c] = self.player_select
             self.check_select = not self.check_select
+
 
 class Control:
 
@@ -123,14 +119,19 @@ class Control:
 class Player():
 
     def __init__(self, x, y, character):
+        self.src = {"white_player": "images/player00.fw.png",
+                    "white_king": "images/player00-k.fw.png",
+                    "red_player": "images/player01.fw.png",
+                    "red_king": "images/player01-k.fw.png"}
+
         if character == 'w':
-            self.player = arcade.Sprite(src['white_player'])
+            self.player = arcade.Sprite(self.src['white_player'])
         elif character == 'W':
-            self.player = arcade.Sprite(src['white_king'])
+            self.player = arcade.Sprite(self.src['white_king'])
         elif character == 'r':
-            self.player = arcade.Sprite(src['red_player'])
+            self.player = arcade.Sprite(self.src['red_player'])
         elif character == 'R':
-            self.player = arcade.Sprite(src['red_king'])
+            self.player = arcade.Sprite(self.src['red_king'])
         self.player.set_position(x, y)
         self.character = character
 
@@ -140,16 +141,21 @@ class World:
     def __init__(self):
         self.control = Control()
         self.map = Map()
-        self.map.new_player()
+        self.map.generate_player()
 
     def animate(self, delta):
         self.map.animate(delta)
 
+    def click_in_board(self, x, y):
+        if 200 < x < 830 and 40 < y < 670:
+            return True
+        return False
+
     def on_mouse_release(self, x, y, button, modifiers):
-        if button == arcade.MOUSE_BUTTON_LEFT and 200 < x < 830 and 40 < y < 670:
-            self.left_down = False
+        if button == arcade.MOUSE_BUTTON_LEFT and self.click_in_board(x, y):
             r, c = self.control.get_mouse_position_map(x, y)
             self.map.select_player(r, c)
+            self.left_down = False
 
 
 class WorldRenderer:
