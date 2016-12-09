@@ -68,64 +68,65 @@ class Map:
     def eat(self, r_origin, c_origin, r_current, c_current):
         delta_r = (r_current - r_origin)
         delta_c = (c_current - c_origin)
-        r_white, c_white = r_origin + \
-            int(delta_r / 2), c_origin + int(delta_c / 2)
-
+        if(delta_r == 0 or delta_c == 0 or abs(delta_r) != abs(delta_c)):
+            return False
         if self.player[self.player_select].character == 'r':
+            r_white, c_white = r_origin + \
+                int(delta_r / 2), c_origin + int(delta_c / 2)
             if delta_r == -2 and abs(delta_c) == 2 and 1 <= self.board[r_white][c_white] <= 8:
-                print("r eat")
                 self.board[r_white][c_white] = 0
                 return True
 
         elif self.player[self.player_select].character == 'R':
             eat_list = []
             print('R eat')
- 
-        
-            
+
             c = c_origin
             check_close = False
-            for r in range(r_origin+1, abs(delta_r)):
-                c += int(delta_c/abs(delta_c))
+            
+            for r in range(r_origin + int(delta_r / abs(delta_r)), r_current, int(delta_r / abs(delta_r))):
+                c += int(delta_c / abs(delta_c))
                 print("R eat", r, c)
                 if 1 <= r <= 7 and 1 <= c <= 7:
                     if 1 <= self.board[r][c] <= 8:
                         if check_close == False:
                             eat_list.append([r, c])
-                            check_close = True
+                            check_close=True
                         else:
                             return False
                     elif 9 <= self.board[r][c] <= 16:
                         return False
                     elif self.board[r][c] == 0:
-                        check_close = False
-                    print (check_close)
+                        check_close=False
+                    print(check_close)
             if len(eat_list) > 0:
                 print("R eatttt")
                 for r, c in eat_list:
-                    self.board[r][c] = 0
+                    self.board[r][c]=0
                 return True
         return False
 
     def walk(self, r_origin, c_origin, r_current, c_current):
-        delta_r = (r_current - r_origin)
-        delta_c = (c_current - c_origin)
-
+        delta_r=(r_current - r_origin)
+        delta_c=(c_current - c_origin)
+        if(delta_r == 0 or delta_c == 0 or abs(delta_r) != abs(delta_c)):
+            return False
         if self.player[self.player_select].character == 'r' and delta_r == -1 and abs(delta_c) == 1:
             print("r walk")
-            self.board[r_current][c_current] = 0
+            self.board[r_current][c_current]=0
             return True
         elif self.player[self.player_select].character == 'R':
             print("R walk")
-            c = c_origin
-            for r in range(r_origin+1, abs(delta_r)):
-                c += int(delta_c/abs(delta_c))
+            c=c_origin
+            print (r_origin + 1, abs(delta_r), int(delta_r / abs(delta_r)))
+            for r in range(r_origin + int(delta_r / abs(delta_r)), r_current, int(delta_r / abs(delta_r))):
+                c += int(delta_c / abs(delta_c))
                 print("R walk", r, c)
                 if 1 <= r <= 7 and 1 <= c <= 7:
                     if self.board[r][c] != 0:
                         return False
-                
-            self.board[r_current][c_current] = 0
+
+            self.board[r_current][c_current]=0
             print("R walkkkk")
             return True
         return False
@@ -133,25 +134,23 @@ class Map:
     def select_player(self, r, c):
         if not self.check_select and self.board[r][c] > 8:
             print("select", r, c)
-            self.position_select = [r, c]
-            self.player_select = self.board[r][c]
-            self.board[r][c] = 0
-            self.check_select = not self.check_select
-            
+            self.position_select=[r, c]
+            self.player_select=self.board[r][c]
+            self.board[r][c]=0
+            self.check_select=not self.check_select
+
         elif self.check_select and self.position_select == [r, c]:
             print("release current position : ", r, c)
-            self.board[r][c] = self.player_select
-            self.check_select = not self.check_select
+            self.board[r][c]=self.player_select
+            self.check_select=not self.check_select
 
         elif (self.check_select and self.board[r][c] == 0
               and (self.eat(self.position_select[0], self.position_select[1], r, c)
                    or self.walk(self.position_select[0], self.position_select[1], r, c))):
             print("release", r, c)
-            self.board[r][c] = self.player_select
-            self.board = self.bot.play(self.board)
-            self.check_select = not self.check_select
-
-        
+            self.board[r][c]=self.player_select
+            self.board=self.bot.play(self.board)
+            self.check_select=not self.check_select
 
 
 class Control:
@@ -160,11 +159,11 @@ class Control:
         pass
 
     def get_mouse_position_map(self, x, y):
-        r, c = -1, -1
+        r, c=-1, -1
         for i in range(0, 8):
             for j in range(0, 8):
                 if (x - (TOP_LEFT[0] + j * BLOCK_SIZE))**2 + (y - (TOP_LEFT[1] - i * BLOCK_SIZE))**2 <= (BLOCK_SIZE / 2 - 1)**2:
-                    r, c = i, j
+                    r, c=i, j
                     # print(r, c)
         return r, c
 
@@ -172,33 +171,33 @@ class Control:
 class Player():
 
     def __init__(self, x, y, character):
-        self.src = {"white_player": "images/player00.fw.png",
+        self.src={"white_player": "images/player00.fw.png",
                     "white_king": "images/player00-k.fw.png",
                     "red_player": "images/player01.fw.png",
                     "red_king": "images/player01-k.fw.png"}
-        self.character = character
+        self.character=character
         self.update_img()
         self.player.set_position(x, y)
-        self.king = False
+        self.king=False
 
     def update_img(self):
         if self.character == 'w':
-            self.player = arcade.Sprite(self.src['white_player'])
+            self.player=arcade.Sprite(self.src['white_player'])
         elif self.character == 'W' and self.king == False:
-            self.player = arcade.Sprite(self.src['white_king'])
-            self.king = True
+            self.player=arcade.Sprite(self.src['white_king'])
+            self.king=True
         elif self.character == 'r':
-            self.player = arcade.Sprite(self.src['red_player'])
+            self.player=arcade.Sprite(self.src['red_player'])
         elif self.character == 'R' and self.king == False:
-            self.player = arcade.Sprite(self.src['red_king'])
-            self.king = True
+            self.player=arcade.Sprite(self.src['red_king'])
+            self.king=True
 
 
 class World:
 
     def __init__(self):
-        self.control = Control()
-        self.map = Map()
+        self.control=Control()
+        self.map=Map()
         self.map.generate_player()
 
     def animate(self, delta):
@@ -211,15 +210,15 @@ class World:
 
     def on_mouse_release(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT and self.click_in_board(x, y):
-            r, c = self.control.get_mouse_position_map(x, y)
+            r, c=self.control.get_mouse_position_map(x, y)
             self.map.select_player(r, c)
-            self.left_down = False
+            self.left_down=False
 
 
 class WorldRenderer:
 
     def __init__(self, world):
-        self.world = world
+        self.world=world
 
     def on_draw(self):
         self.world.map.on_draw()
