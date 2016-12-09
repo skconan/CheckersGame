@@ -100,7 +100,7 @@ class Map:
         if self.player[self.player_select].character == 'r':
             r_white = r_origin + int(delta_r / 2)
             c_white = c_origin + int(delta_c / 2)
-            if delta_r == -2 and abs(delta_c) == 2 and it_is_bot(r_white, c_white):
+            if delta_r == -2 and abs(delta_c) == 2 and self.it_is_bot(r_white, c_white):
                 self.board[r_white][c_white] = 0
                 return True
 
