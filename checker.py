@@ -32,7 +32,7 @@ class CheckerGameWindow(arcade.Window):
         super().__init__(width, height)
         self.bg = arcade.Sprite(src['bg'])
         self.bg.set_position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-        self.world = World(BOTTOM_LEFT)
+        self.world = World()
         self.worldRenderer = WorldRenderer(self.world)
 
     def on_draw(self):
