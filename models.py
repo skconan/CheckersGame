@@ -70,21 +70,38 @@ class Map:
         delta_c = (c_current - c_origin)
         r_white, c_white = r_origin + \
             int(delta_r / 2), c_origin + int(delta_c / 2)
-        if self.player[self.board[r_origin][c_origin]] == 'w':
+
+        if self.player[self.player_select].character == 'r':
             if delta_r == -2 and abs(delta_c) == 2 and 1 <= self.board[r_white][c_white] <= 8:
+                print("r eat")
                 self.board[r_white][c_white] = 0
                 return True
 
-        elif self.player[self.board[r_origin][c_origin]] == 'W':
+        elif self.player[self.player_select].character == 'R':
             eat_list = []
-            for r in range(r_origin, r_current):
-                for c in range(c_origin, c_current):
-                    if 1 <= r <= 7 and 1 <= c <= 7:
-                        if 1 <= self.player[self.board[r][c]] <= 8:
+            print('R eat')
+ 
+        
+            
+            c = c_origin
+            check_close = False
+            for r in range(r_origin+1, abs(delta_r)):
+                c += int(delta_c/abs(delta_c))
+                print("R eat", r, c)
+                if 1 <= r <= 7 and 1 <= c <= 7:
+                    if 1 <= self.board[r][c] <= 8:
+                        if check_close == False:
                             eat_list.append([r, c])
-                        elif 9 <= self.player[self.board[r][c]] <= 16:
+                            check_close = True
+                        else:
                             return False
+                    elif 9 <= self.board[r][c] <= 16:
+                        return False
+                    elif self.board[r][c] == 0:
+                        check_close = False
+                    print (check_close)
             if len(eat_list) > 0:
+                print("R eatttt")
                 for r, c in eat_list:
                     self.board[r][c] = 0
                 return True
@@ -94,8 +111,22 @@ class Map:
         delta_r = (r_current - r_origin)
         delta_c = (c_current - c_origin)
 
-        if(delta_r == -1 and abs(delta_c) == 1):
+        if self.player[self.player_select].character == 'r' and delta_r == -1 and abs(delta_c) == 1:
+            print("r walk")
             self.board[r_current][c_current] = 0
+            return True
+        elif self.player[self.player_select].character == 'R':
+            print("R walk")
+            c = c_origin
+            for r in range(r_origin+1, abs(delta_r)):
+                c += int(delta_c/abs(delta_c))
+                print("R walk", r, c)
+                if 1 <= r <= 7 and 1 <= c <= 7:
+                    if self.board[r][c] != 0:
+                        return False
+                
+            self.board[r_current][c_current] = 0
+            print("R walkkkk")
             return True
         return False
 
@@ -106,6 +137,11 @@ class Map:
             self.player_select = self.board[r][c]
             self.board[r][c] = 0
             self.check_select = not self.check_select
+            
+        elif self.check_select and self.position_select == [r, c]:
+            print("release current position : ", r, c)
+            self.board[r][c] = self.player_select
+            self.check_select = not self.check_select
 
         elif (self.check_select and self.board[r][c] == 0
               and (self.eat(self.position_select[0], self.position_select[1], r, c)
@@ -115,10 +151,7 @@ class Map:
             self.board = self.bot.play(self.board)
             self.check_select = not self.check_select
 
-        elif self.position_select == [r, c]:
-            print("release", r, c)
-            self.board[r][c] = self.player_select
-            self.check_select = not self.check_select
+        
 
 
 class Control:
@@ -132,7 +165,7 @@ class Control:
             for j in range(0, 8):
                 if (x - (TOP_LEFT[0] + j * BLOCK_SIZE))**2 + (y - (TOP_LEFT[1] - i * BLOCK_SIZE))**2 <= (BLOCK_SIZE / 2 - 1)**2:
                     r, c = i, j
-                    print(r, c)
+                    # print(r, c)
         return r, c
 
 
