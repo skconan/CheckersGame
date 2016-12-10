@@ -192,8 +192,20 @@ class Map:
     def need_to_eat(self):
         for r in range(0, 8):
             for c in range(0, 8):
-                if self.it_is_player(r, c) and self.can_eat(r, c):
-                    return True
+                if self.it_is_player(r, c) :
+                    if self.can_eat(r, c):
+                        return True
+                    elif self.player[self.board[r][c]].character == 'R':
+                        dir = [[1,1],[1,-1],[-1,-1],[-1,1]]
+                        for i in dir:
+                            print ("i",i)
+                            for ct in range(1,7):
+                                print(r+i[0]*ct,c+i[1]*ct)
+                                if self.out_of_range(r+i[0]*ct,c+i[1]*ct):
+                                    break
+                                elif self.it_is_bot(r+i[0]*ct,c+i[1]*ct) and (self.it_is_blank(r+i[0]*(ct+1),c+i[1]*(ct+1)) or not self.it_is_bot(r+i[0]*(ct-1),c+i[1]*(ct-1))):
+                                    return True
+                                
         return False
 
     def select_player(self, r, c):
