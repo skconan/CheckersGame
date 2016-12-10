@@ -14,7 +14,8 @@ class Map:
     def __init__(self):
         self.player = []
         self.check_select = False
-        self.position_select = [-1, -1]
+        self.r_select = -1
+        self.c_select = -1
         self.player_select = 0
         self.bot = Bot()
         self.status = 'Player'
@@ -74,24 +75,21 @@ class Map:
     def it_is_bot(self, r, c):
         if self.out_of_range(r, c):
             return False
-
-        if 1 <= self.board[r][c] <= 8:
+        elif 1 <= self.board[r][c] <= 8:
             return True
         return False
 
     def it_is_player(self, r, c):
         if self.out_of_range(r, c):
             return False
-
-        if 9 <= self.board[r][c] <= 16:
+        elif 9 <= self.board[r][c] <= 16:
             return True
         return False
 
     def it_is_blank(self, r, c):
         if self.out_of_range(r, c):
             return False
-
-        if self.board[r][c] == 0:
+        elif self.board[r][c] == 0:
             return True
         return False
 
@@ -107,10 +105,10 @@ class Map:
         if self.basic_cannot_move(delta_r, delta_c):
             return False
 
-        if self.player[self.player_select].character == 'r':
+        if self.player[self.player_select].character == 'r' and delta_r == -2 and abs(delta_c) == 2:
             r_white = r_origin + int(delta_r / 2)
             c_white = c_origin + int(delta_c / 2)
-            if delta_r == -2 and abs(delta_c) == 2 and self.it_is_bot(r_white, c_white):
+            if self.it_is_bot(r_white, c_white):
                 self.board[r_white][c_white] = 0
                 return True
 
@@ -152,22 +150,29 @@ class Map:
     def walk(self, r_origin, c_origin, r_current, c_current):
         delta_r = (r_current - r_origin)
         delta_c = (c_current - c_origin)
-        if(delta_r == 0 or delta_c == 0 or abs(delta_r) != abs(delta_c)):
+
+        if self.basic_cannot_move(delta_r, delta_c):
             return False
+
         if self.player[self.player_select].character == 'r' and delta_r == -1 and abs(delta_c) == 1:
             print("r walk")
             self.board[r_current][c_current] = 0
             return True
         elif self.player[self.player_select].character == 'R':
             print("R walk")
-            c = c_origin
-            print(r_origin + 1, abs(delta_r), int(delta_r / abs(delta_r)))
-            for r in range(r_origin + int(delta_r / abs(delta_r)), r_current, int(delta_r / abs(delta_r))):
-                c += int(delta_c / abs(delta_c))
+            c_step = int(delta_c / abs(delta_c))
+            c_start = c_origin + c_step
+            c_stop = c_current
+
+            r_step = int(delta_r / abs(delta_r))
+            r_start = r_origin + r_step
+            r_stop = r_current
+
+            for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
+
                 print("R walk", r, c)
-                if 1 <= r <= 7 and 1 <= c <= 7:
-                    if self.board[r][c] != 0:
-                        return False
+                if not self.it_is_blank(r, c):
+                    return False
 
             self.board[r_current][c_current] = 0
             print("R walkkkk")
@@ -189,23 +194,24 @@ class Map:
             pass
         if not self.check_select and self.board[r][c] > 8:
             print("select", r, c)
-            self.position_select = [r, c]
+            self.r_select = r
+            self.c_select = c
             self.player_select = self.board[r][c]
             self.board[r][c] = 0
             self.check_select = not self.check_select
 
-        elif self.check_select and self.position_select == [r, c]:
+        elif self.check_select and [self.r_select, self.c_select] == [r, c]:
             print("release current position : ", r, c)
             self.board[r][c] = self.player_select
             self.check_select = not self.check_select
 
-        elif (self.check_select and self.it_is_blank(r, c)):
-            if self.walk(self.position_select[0], self.position_select[1], r, c) and not self.can_eat(self.position_select[0], self.position_select[1]):
+        elif self.check_select and self.it_is_blank(r, c):
+            if self.walk(self.r_select, self.c_select, r, c) and not self.can_eat(self.r_select, self.c_select):
                 print("release", r, c)
                 self.board[r][c] = self.player_select
                 self.check_select = not self.check_select
                 self.status = "Bot"
-            elif self.eat(self.position_select[0], self.position_select[1], r, c):
+            elif self.eat(self.r_select, self.c_select, r, c):
                 print("release", r, c)
                 self.board[r][c] = self.player_select
                 self.check_select = not self.check_select
