@@ -189,6 +189,13 @@ class Map:
             return True
         return False
 
+    def need_to_eat(self):
+        for r in range(0, 8):
+            for c in range(0, 8):
+                if self.it_is_player(r, c) and self.can_eat(r, c):
+                    return True
+        return False
+
     def select_player(self, r, c):
         if self.status == "Bot":
             pass
@@ -206,7 +213,7 @@ class Map:
             self.check_select = not self.check_select
 
         elif self.check_select and self.it_is_blank(r, c):
-            if self.walk(self.r_select, self.c_select, r, c) and not self.can_eat(self.r_select, self.c_select):
+            if self.walk(self.r_select, self.c_select, r, c) and not self.can_eat(self.r_select, self.c_select) and not self.need_to_eat():
                 print("release", r, c)
                 self.board[r][c] = self.player_select
                 self.check_select = not self.check_select
