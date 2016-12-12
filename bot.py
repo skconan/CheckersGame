@@ -12,7 +12,8 @@ class Bot():
 
     def __init__(self):
         self.board = []
-        self.direction = [[1, -1], [1, 1], [2, -2], [2, 2]]
+        self.player = []
+        self.direction_w = [[1, -1], [1, 1], [2, -2], [2, 2]]
 
     def check_eat(self, r_origin, c_origin, r_current, c_current):
         delta_r = (r_current - r_origin)
@@ -20,7 +21,6 @@ class Bot():
         r_white, c_white = r_origin + \
             int(delta_r / 2), c_origin + int(delta_c / 2)
         if delta_r == 2 and abs(delta_c) == 2 and 9 <= self.board[r_white][c_white] <= 16:
-            # self.board[r_white][c_white] = 0
             return True
         return False
 
@@ -29,17 +29,16 @@ class Bot():
         delta_c = (c_current - c_origin)
 
         if(delta_r == 1 and abs(delta_c) == 1):
-            # self.board[r_current][c_current] = 0
             return True
         return False
 
     def calculate_score(self, r, c, i, j):
-        if self.check_eat(r, c, r+i, c+j):
+        if self.check_eat(r, c, r + i, c + j):
             return 2
-        elif self.check_walk(r, c, r+i, c+j):
+        elif self.check_walk(r, c, r + i, c + j):
             return 1
         return 0
-    
+
     def out_of_range(self, r, c):
         if 0 <= r <= 7 and 0 <= c <= 7:
             return False
@@ -71,43 +70,139 @@ class Bot():
             return True
         return False
 
+    def get_character(self, number):
+        return self.player[number].character
+
+    def can_eat(self, r, c):
+        if self.get_character(self.board[r][c]) == 'w':
+            if self.it_is_player(r + 1, c + 1) and self.it_is_blank(r + 2, c + 2):
+                print("w ", r, c, "can eat")
+                return r + 2, c + 2, r + 1, c + 1,  True
+            elif self.it_is_player(r + 1, c - 1) and self.it_is_blank(r + 2, c - 2):
+                print("w ", r, c, "can eat")
+                return r + 2, c - 2, r + 1, c - 1, True
+
+        elif self.get_character(self.board[r][c]) == 'W':
+            print("W ", r, c, "maybe eat")
+            dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
+            for i, j in dir:
+                for ct in range(1, 7):
+                    if self.it_is_player(r + i * ct, c + j * ct):
+                        if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
+                            print("W ", r, c, "can eat")
+                            return r + i * (ct + 1), c + j * (ct + 1), r + i * ct, c + j * ct, True
+                        else:
+                            break
+                    elif self.it_is_bot(r + i * ct, c + j * ct):
+                        break
+        return 0, 0, 0, 0, False
+
+    def player_can_eat(self, r, c):
+        if self.it_is_player(r + 1, c + 1) or self.it_is_player(r + 1, c - 1):
+            return True
+        return False
+
+    def walk(self, r_origin, c_origin, r_current, c_current):
+        delta_r = (r_current - r_origin)
+        delta_c = (c_current - c_origin)
+
+        if self.basic_cannot_move(delta_r, delta_c):
+            return False
+
+        if self.get_character(self.player_select) == 'w' and delta_r == 1:
+            print("r walk")
+            return True
+
+        elif self.get_character(self.player_select) == 'W':
+            c_step = int(delta_c / abs(delta_c))
+            c_start = c_origin + c_step
+            c_stop = c_current
+
+            r_step = int(delta_r / abs(delta_r))
+            r_start = r_origin + r_step
+            r_stop = r_current
+
+            for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
+                if not self.it_is_blank(r, c):
+                    return False
+            # print("R walk")
+            return True
+
+        return False
+
+    def can_walk(self, r, c):
+        if self.get_character(self.board[r][c]) == 'w':
+            if self.it_is_blank(r + 1, c + 1):
+                print("w ", r, c, "can walk")
+                return r + 1, c + 1,  True
+            elif self.it_is_blank(r + 1, c - 1):
+                print("w ", r, c, "can walk")
+                return r + 1, c - 1, True
+
+        # elif self.get_character(self.board[r][c]) == 'W':
+            # print("W ", r, c, "maybe eat")
+            # dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
+            # for i, j in dir:
+            #     for ct in range(1, 7):
+            #         if self.it_is_player(r + i * ct, c + j * ct):
+            #             if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
+            #                 print("W ", r, c, "can eat")
+            #                 return r + i * (ct + 1), c + j * (ct + 1), r + i * ct, c + j * ct, True
+            #             else:
+            #                 break
+            #         elif self.it_is_bot(r + i * ct, c + j * ct):
+            #             break
+        return 0, 0, False
+
     def new_board(self):
-        print ("new_board")
+        print("new_board")
         max = Node()
         for r in range(0, 8):
             for c in range(0, 8):
-                if self.it_is_bot(r,c):
-                    for i, j in self.direction:
-                        if 0 <= r+i <= 7 and 0 <= c+j <= 7: 
-                            if not self.it_is_blank(r+i,c+j):
-                                score = 0
-                            else:
-                                score = self.calculate_score(r, c, i, j)
-                        else :
-                            score = 0
-                        # print ("direction ",r,c, r+i, c+j,score)
-                        if(score > max.score):
-                            print(r, c, r + i, c + j)
-                            if score == 1:
-                                max = Node(self.board[r][
-                                    c], score, r, c, r + i, c + j)
-                            elif score == 2:
-                                max = Node(self.board[r][
-                                    c], score, r, c, r + i, c + j, r + int(i/2), c + int(j/2))
-                            # print(max)
-        # print(max.number,max.r_origin,max.c_origin,max.r_current,max.c_current,max.score)
+                if not self.it_is_bot(r, c):
+                    continue
+                score = 0
+                r_current, c_current, r_eat, c_eat, eat_status = self.can_eat(
+                    r, c)
+                if eat_status:
+                    if self.player_can_eat(r_current, c_current):
+                        score = 3
+                    else:
+                        score = 4
+                else:
+                    r_current, c_current, walk_status = self.can_walk(
+                        r, c)
+                    if walk_status:
+                        if self.player_can_eat(r_current, c_current):
+                            score = 1
+                        else:
+                            score = 2
+
+                if(score > max.score):
+                    if score == 1 or score == 2:
+                        max = Node(self.board[r][
+                            c], score, r, c, r_current, c_current)
+                    elif score == 3 or score == 4:
+                        max = Node(self.board[r][
+                            c], score, r, c, r_current, c_current, r_eat, c_eat)
+
+                    # print(max)
+        print("number",max.number,"origin ",max.r_origin,max.c_origin,"current ",max.r_current,max.c_current,"score ",max.score)
         self.board[max.r_origin][max.c_origin] = 0
-        if max.score == 2:
+        if max.score >= 3:
             self.board[max.r_eat][max.c_eat] = 0
         self.board[max.r_current][max.c_current] = max.number
+
+  
 
     def print_board(self, board):
         for i in range(0, 8):
             print(self.board[i])
 
-    def play(self,board_origin):
+    def play(self, board_origin, player_origin):
         # self.print_board(board_origin)
         self.board = board_origin
+        self.player = player_origin
         self.new_board()
         # self.print_board(tmp)
         return self.board
