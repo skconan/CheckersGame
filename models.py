@@ -19,6 +19,7 @@ class Map:
         self.player_select = 0
         self.bot = Bot()
         self.status = 'Player'
+        self.eat_status = False
         self.board = [[-1, 1, -1, 2, -1, 3, -1, 4],
                       [5, -1, 6, -1, 7, -1, 8, -1],
                       [-1, 0, -1, 0, -1, 0, -1, 0],
@@ -98,6 +99,9 @@ class Map:
             return True
         return False
 
+    def get_character(self, number):
+        return self.player[number].character
+
     def eat(self, r_origin, c_origin, r_current, c_current):
         delta_r = (r_current - r_origin)
         delta_c = (c_current - c_origin)
@@ -105,46 +109,30 @@ class Map:
         if self.basic_cannot_move(delta_r, delta_c):
             return False
 
-        if self.player[self.player_select].character == 'r' and delta_r == -2 and abs(delta_c) == 2:
-            r_white = r_origin + int(delta_r / 2)
-            c_white = c_origin + int(delta_c / 2)
-            if self.it_is_bot(r_white, c_white):
-                self.board[r_white][c_white] = 0
-                return True
+        c_step = int(delta_c / abs(delta_c))
+        c_start = c_origin + c_step
+        c_stop = c_current - c_step
 
-        elif self.player[self.player_select].character == 'R':
-            print('R eat')
-            eat_list = []
-            c_step = int(delta_c / abs(delta_c))
-            c_start = c_origin + c_step
-            c_stop = c_current
+        r_step = int(delta_r / abs(delta_r))
+        r_start = r_origin + r_step
+        r_stop = r_current - r_step
 
-            r_step = int(delta_r / abs(delta_r))
-            r_start = r_origin + r_step
-            r_stop = r_current
+        if not self.it_is_bot(r_stop, c_stop):
+            return False
 
-            check_close = False
+        if self.get_character(self.player_select) == 'r' and delta_r == -2:
+            # print('r eat')
+            self.board[r_stop][c_stop] = 0
+            return True
 
-            if not self.it_is_bot(r_stop - r_step, c_stop - c_step):
-                return False
+        elif self.get_character(self.player_select) == 'R':
             for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
-                print("R eat", r, c)
-                if self.it_is_bot(r, c):
-                    if check_close == False:
-                        eat_list.append([r, c])
-                        check_close = True
-                    else:
-                        return False
-                elif self.it_is_player(r, c):
+                if not self.it_is_blank(r, c) and r != r_stop:
                     return False
-                elif self.it_is_blank(r, c):
-                    check_close = False
-                print(check_close)
-            if len(eat_list) > 0:
-                print("R eatttt")
-                for r, c in eat_list:
-                    self.board[r][c] = 0
-                return True
+            # print('R eat')
+            self.board[r_stop][c_stop] = 0
+            return True
+        # print('cannot eat')
         return False
 
     def walk(self, r_origin, c_origin, r_current, c_current):
@@ -154,12 +142,11 @@ class Map:
         if self.basic_cannot_move(delta_r, delta_c):
             return False
 
-        if self.player[self.player_select].character == 'r' and delta_r == -1 and abs(delta_c) == 1:
-            print("r walk")
-            self.board[r_current][c_current] = 0
+        if self.get_character(self.player_select) == 'r' and delta_r == -1:
+            # print("r walk")
             return True
-        elif self.player[self.player_select].character == 'R':
-            print("R walk")
+
+        elif self.get_character(self.player_select) == 'R':
             c_step = int(delta_c / abs(delta_c))
             c_start = c_origin + c_step
             c_stop = c_current
@@ -169,43 +156,40 @@ class Map:
             r_stop = r_current
 
             for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
-
-                print("R walk", r, c)
                 if not self.it_is_blank(r, c):
                     return False
-
-            self.board[r_current][c_current] = 0
-            print("R walkkkk")
+            # print("R walk")
             return True
+
         return False
 
     def can_eat(self, r, c):
-        print("can eat", r, c)
-        if self.it_is_bot(r - 1, c + 1) and self.it_is_blank(r - 2, c + 2):
-            print("c+2", r, c)
-            return True
-        elif self.it_is_bot(r - 1, c - 1) and self.it_is_blank(r - 2, c - 2):
-            print("c-2", r, c)
-            return True
+        if self.get_character(self.board[r][c]) == 'r':
+            if self.it_is_bot(r - 1, c + 1) and self.it_is_blank(r - 2, c + 2):
+                # print("r ", r, c, "can eat")
+                return True
+            elif self.it_is_bot(r - 1, c - 1) and self.it_is_blank(r - 2, c - 2):
+                # print("r ", r, c, "can eat")
+                return True
+        elif self.get_character(self.board[r][c]) == 'R':
+            # print("R ", r, c, "maybe eat")
+            dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
+            for i, j in dir:
+                for ct in range(1, 7):
+                    if self.it_is_bot(r + i * ct, c + j * ct):
+                        if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
+                            # print("R ", r, c, "can eat")
+                            return True
+                        else:
+                            break
         return False
 
     def need_to_eat(self):
         for r in range(0, 8):
             for c in range(0, 8):
-                if self.it_is_player(r, c) :
-                    if self.can_eat(r, c):
-                        return True
-                    elif self.player[self.board[r][c]].character == 'R':
-                        dir = [[1,1],[1,-1],[-1,-1],[-1,1]]
-                        for i in dir:
-                            print ("i",i)
-                            for ct in range(1,7):
-                                print(r+i[0]*ct,c+i[1]*ct)
-                                if self.out_of_range(r+i[0]*ct,c+i[1]*ct):
-                                    break
-                                elif self.it_is_bot(r+i[0]*ct,c+i[1]*ct) and (self.it_is_blank(r+i[0]*(ct+1),c+i[1]*(ct+1)) or not self.it_is_bot(r+i[0]*(ct-1),c+i[1]*(ct-1))):
-                                    return True
-                                
+                # print("need to eat", r, c)
+                if self.it_is_player(r, c) and self.can_eat(r, c):
+                    return True
         return False
 
     def select_player(self, r, c):
@@ -213,6 +197,9 @@ class Map:
             pass
         if not self.check_select and self.board[r][c] > 8:
             print("select", r, c)
+            self.eat_status = False
+            if self.can_eat(r, c):
+                self.eat_status = True
             self.r_select = r
             self.c_select = c
             self.player_select = self.board[r][c]
@@ -225,13 +212,17 @@ class Map:
             self.check_select = not self.check_select
 
         elif self.check_select and self.it_is_blank(r, c):
-            if self.walk(self.r_select, self.c_select, r, c) and not self.can_eat(self.r_select, self.c_select) and not self.need_to_eat():
-                print("release", r, c)
+            if not self.eat_status:
+                self.eat_status = self.need_to_eat()
+
+            if self.walk(self.r_select, self.c_select, r, c) and not self.eat_status:
+                print("release walk", r, c)
                 self.board[r][c] = self.player_select
                 self.check_select = not self.check_select
                 self.status = "Bot"
+
             elif self.eat(self.r_select, self.c_select, r, c):
-                print("release", r, c)
+                print("release eat", r, c)
                 self.board[r][c] = self.player_select
                 self.check_select = not self.check_select
                 if not self.can_eat(r, c):
