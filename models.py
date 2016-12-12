@@ -200,8 +200,7 @@ class Map:
             self.eat_status = False
             if self.can_eat(r, c):
                 self.eat_status = True
-            self.r_select = r
-            self.c_select = c
+            self.r_select, self.c_select = r, c
             self.player_select = self.board[r][c]
             self.board[r][c] = 0
             self.check_select = not self.check_select
