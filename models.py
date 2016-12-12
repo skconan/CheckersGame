@@ -121,7 +121,7 @@ class Map:
             return False
 
         if self.get_character(self.player_select) == 'r' and delta_r == -2:
-            # print('r eat')
+            print('r eat')
             self.board[r_stop][c_stop] = 0
             return True
 
@@ -129,10 +129,10 @@ class Map:
             for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
                 if not self.it_is_blank(r, c) and r != r_stop:
                     return False
-            # print('R eat')
+            print('R eat')
             self.board[r_stop][c_stop] = 0
             return True
-        # print('cannot eat')
+        print('cannot eat')
         return False
 
     def walk(self, r_origin, c_origin, r_current, c_current):
@@ -143,7 +143,7 @@ class Map:
             return False
 
         if self.get_character(self.player_select) == 'r' and delta_r == -1:
-            # print("r walk")
+            print("r walk")
             return True
 
         elif self.get_character(self.player_select) == 'R':
@@ -166,22 +166,24 @@ class Map:
     def can_eat(self, r, c):
         if self.get_character(self.board[r][c]) == 'r':
             if self.it_is_bot(r - 1, c + 1) and self.it_is_blank(r - 2, c + 2):
-                # print("r ", r, c, "can eat")
+                print("r ", r, c, "can eat")
                 return True
             elif self.it_is_bot(r - 1, c - 1) and self.it_is_blank(r - 2, c - 2):
-                # print("r ", r, c, "can eat")
+                print("r ", r, c, "can eat")
                 return True
         elif self.get_character(self.board[r][c]) == 'R':
-            # print("R ", r, c, "maybe eat")
+            print("R ", r, c, "maybe eat")
             dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
             for i, j in dir:
                 for ct in range(1, 7):
                     if self.it_is_bot(r + i * ct, c + j * ct):
                         if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
-                            # print("R ", r, c, "can eat")
+                            print("R ", r, c, "can eat")
                             return True
                         else:
                             break
+                    elif self.it_is_player(r + i * ct, c + j * ct):
+                        break
         return False
 
     def need_to_eat(self):
@@ -228,7 +230,7 @@ class Map:
                     self.status = "Bot"
 
         if(self.status == "Bot"):
-            self.board = self.bot.play(self.board)
+            self.board = self.bot.play(self.board,self.player)
             self.status = "Player"
 
 
