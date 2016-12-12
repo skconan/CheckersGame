@@ -1,43 +1,8 @@
-import arcade
-
-SCREEN_WIDTH = 1024
-SCREEN_HEIGHT = 700
-PLAYER_WIDTH = 63
-BLOCK_SIZE = 79
-TOP_LEFT = (237, SCREEN_HEIGHT - 75)
-BOTTOM_LEFT = (237, 73)
-
-
 class Bot():
 
     def __init__(self):
         self.board = []
         self.player = []
-        self.direction_w = [[1, -1], [1, 1], [2, -2], [2, 2]]
-
-    def check_eat(self, r_origin, c_origin, r_current, c_current):
-        delta_r = (r_current - r_origin)
-        delta_c = (c_current - c_origin)
-        r_white, c_white = r_origin + \
-            int(delta_r / 2), c_origin + int(delta_c / 2)
-        if delta_r == 2 and abs(delta_c) == 2 and 9 <= self.board[r_white][c_white] <= 16:
-            return True
-        return False
-
-    def check_walk(self, r_origin, c_origin, r_current, c_current):
-        delta_r = (r_current - r_origin)
-        delta_c = (c_current - c_origin)
-
-        if(delta_r == 1 and abs(delta_c) == 1):
-            return True
-        return False
-
-    def calculate_score(self, r, c, i, j):
-        if self.check_eat(r, c, r + i, c + j):
-            return 2
-        elif self.check_walk(r, c, r + i, c + j):
-            return 1
-        return 0
 
     def out_of_range(self, r, c):
         if 0 <= r <= 7 and 0 <= c <= 7:
@@ -102,34 +67,6 @@ class Bot():
             return True
         return False
 
-    def walk(self, r_origin, c_origin, r_current, c_current):
-        delta_r = (r_current - r_origin)
-        delta_c = (c_current - c_origin)
-
-        if self.basic_cannot_move(delta_r, delta_c):
-            return False
-
-        if self.get_character(self.player_select) == 'w' and delta_r == 1:
-            print("r walk")
-            return True
-
-        elif self.get_character(self.player_select) == 'W':
-            c_step = int(delta_c / abs(delta_c))
-            c_start = c_origin + c_step
-            c_stop = c_current
-
-            r_step = int(delta_r / abs(delta_r))
-            r_start = r_origin + r_step
-            r_stop = r_current
-
-            for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
-                if not self.it_is_blank(r, c):
-                    return False
-            # print("R walk")
-            return True
-
-        return False
-
     def can_walk(self, r, c):
         if self.get_character(self.board[r][c]) == 'w':
             if self.it_is_blank(r + 1, c + 1):
@@ -187,13 +124,12 @@ class Bot():
                             c], score, r, c, r_current, c_current, r_eat, c_eat)
 
                     # print(max)
-        print("number",max.number,"origin ",max.r_origin,max.c_origin,"current ",max.r_current,max.c_current,"score ",max.score)
+        print("number", max.number, "origin ", max.r_origin, max.c_origin,
+              "current ", max.r_current, max.c_current, "score ", max.score)
         self.board[max.r_origin][max.c_origin] = 0
         if max.score >= 3:
             self.board[max.r_eat][max.c_eat] = 0
         self.board[max.r_current][max.c_current] = max.number
-
-  
 
     def print_board(self, board):
         for i in range(0, 8):
