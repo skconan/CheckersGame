@@ -178,11 +178,12 @@ class Map:
                 for ct in range(1, 7):
                     if self.it_is_bot(r + i * ct, c + j * ct):
                         if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
-                            print("R ", r, c, "can eat")
+                            print("R ", r + i * ct, c + j * ct, "can eat")
                             return True
                         else:
                             break
-                    elif self.it_is_player(r + i * ct, c + j * ct):
+                    if self.it_is_player(r + i * ct, c + j * ct):
+                        print("R ", r + i * ct, c + j * ct, "cannot eat")
                         break
         return False
 
@@ -200,7 +201,7 @@ class Map:
         if not self.check_select and self.board[r][c] > 8:
             print("select", r, c)
             self.eat_status = False
-            if self.can_eat(r, c):
+            if self.can_eat(r, c) or self.need_to_eat():
                 self.eat_status = True
             self.r_select, self.c_select = r, c
             self.player_select = self.board[r][c]
@@ -213,9 +214,6 @@ class Map:
             self.check_select = not self.check_select
 
         elif self.check_select and self.it_is_blank(r, c):
-            if not self.eat_status:
-                self.eat_status = self.need_to_eat()
-
             if self.walk(self.r_select, self.c_select, r, c) and not self.eat_status:
                 print("release walk", r, c)
                 self.board[r][c] = self.player_select
@@ -230,7 +228,7 @@ class Map:
                     self.status = "Bot"
 
         if(self.status == "Bot"):
-            self.board = self.bot.play(self.board,self.player)
+            self.board = self.bot.play(self.board, self.player)
             self.status = "Player"
 
 
