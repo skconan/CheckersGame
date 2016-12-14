@@ -2,11 +2,10 @@ import arcade
 import arcade.key
 from bot import Bot
 
-SCREEN_WIDTH = 1024
+
 SCREEN_HEIGHT = 700
 BLOCK_SIZE = 79
 TOP_LEFT = (237, SCREEN_HEIGHT - 75)
-BOTTOM_LEFT = (237, 73)
 
 
 class Map:
