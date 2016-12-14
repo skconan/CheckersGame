@@ -115,7 +115,7 @@ class Bot():
                         else:
                             score = 2
 
-                if(score > max.score):
+                if(score >= max.score):
                     if score == 1 or score == 2:
                         max = Node(self.board[r][
                             c], score, r, c, r_current, c_current)
