@@ -121,7 +121,6 @@ class Map:
             return False
 
         if self.get_character(self.player_select) == 'r' and delta_r == -2:
-            print('r eat')
             self.board[r_stop][c_stop] = 0
             return True
 
@@ -129,10 +128,8 @@ class Map:
             for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
                 if not self.it_is_blank(r, c) and r != r_stop:
                     return False
-            print('R eat')
             self.board[r_stop][c_stop] = 0
             return True
-        print('cannot eat')
         return False
 
     def walk(self, r_origin, c_origin, r_current, c_current):
@@ -143,7 +140,6 @@ class Map:
             return False
 
         if self.get_character(self.player_select) == 'r' and delta_r == -1:
-            print("r walk")
             return True
 
         elif self.get_character(self.player_select) == 'R':
@@ -158,7 +154,6 @@ class Map:
             for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
                 if not self.it_is_blank(r, c):
                     return False
-            # print("R walk")
             return True
 
         return False
@@ -166,31 +161,25 @@ class Map:
     def can_eat(self, r, c):
         if self.get_character(self.board[r][c]) == 'r':
             if self.it_is_bot(r - 1, c + 1) and self.it_is_blank(r - 2, c + 2):
-                print("r ", r, c, "can eat")
                 return True
             elif self.it_is_bot(r - 1, c - 1) and self.it_is_blank(r - 2, c - 2):
-                print("r ", r, c, "can eat")
                 return True
         elif self.get_character(self.board[r][c]) == 'R':
-            print("R ", r, c, "maybe eat")
             dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
             for i, j in dir:
                 for ct in range(1, 7):
                     if self.it_is_bot(r + i * ct, c + j * ct):
                         if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
-                            print("R ", r + i * ct, c + j * ct, "can eat")
                             return True
                         else:
                             break
                     if self.it_is_player(r + i * ct, c + j * ct):
-                        print("R ", r + i * ct, c + j * ct, "cannot eat")
                         break
         return False
 
     def need_to_eat(self):
         for r in range(0, 8):
             for c in range(0, 8):
-                # print("need to eat", r, c)
                 if self.it_is_player(r, c) and self.can_eat(r, c):
                     return True
         return False
@@ -199,7 +188,6 @@ class Map:
         if self.status == "Bot":
             pass
         if not self.check_select and self.board[r][c] > 8:
-            print("select", r, c)
             self.eat_status = False
             if self.can_eat(r, c) or self.need_to_eat():
                 self.eat_status = True
@@ -209,19 +197,16 @@ class Map:
             self.check_select = not self.check_select
 
         elif self.check_select and [self.r_select, self.c_select] == [r, c]:
-            print("release current position : ", r, c)
             self.board[r][c] = self.player_select
             self.check_select = not self.check_select
 
         elif self.check_select and self.it_is_blank(r, c):
             if self.walk(self.r_select, self.c_select, r, c) and not self.eat_status:
-                print("release walk", r, c)
                 self.board[r][c] = self.player_select
                 self.check_select = not self.check_select
                 self.status = "Bot"
 
             elif self.eat(self.r_select, self.c_select, r, c):
-                print("release eat", r, c)
                 self.board[r][c] = self.player_select
                 self.check_select = not self.check_select
                 if not self.can_eat(r, c):

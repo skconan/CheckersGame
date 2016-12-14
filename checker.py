@@ -5,6 +5,7 @@ from models import World, WorldRenderer
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 700
 
+
 class CheckerGameWindow(arcade.Window):
 
     def __init__(self, width, height):
