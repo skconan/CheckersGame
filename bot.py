@@ -10,23 +10,17 @@ class Bot():
         return True
 
     def it_is_bot(self, r, c):
-        if self.out_of_range(r, c):
-            return False
-        elif 1 <= self.board[r][c] <= 8:
+        if not self.out_of_range(r, c) and 1 <= self.board[r][c] <= 8:
             return True
         return False
 
     def it_is_player(self, r, c):
-        if self.out_of_range(r, c):
-            return False
-        elif 9 <= self.board[r][c] <= 16:
+        if not self.out_of_range(r, c) and 9 <= self.board[r][c] <= 16:
             return True
         return False
 
     def it_is_blank(self, r, c):
-        if self.out_of_range(r, c):
-            return False
-        elif self.board[r][c] == 0:
+        if not self.out_of_range(r, c) and self.board[r][c] == 0:
             return True
         return False
 
@@ -77,18 +71,18 @@ class Bot():
                 return r + 1, c - 1, True
 
         # elif self.get_character(self.board[r][c]) == 'W':
-            # print("W ", r, c, "maybe eat")
-            # dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
-            # for i, j in dir:
-            #     for ct in range(1, 7):
-            #         if self.it_is_player(r + i * ct, c + j * ct):
-            #             if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
-            #                 print("W ", r, c, "can eat")
-            #                 return r + i * (ct + 1), c + j * (ct + 1), r + i * ct, c + j * ct, True
-            #             else:
-            #                 break
-            #         elif self.it_is_bot(r + i * ct, c + j * ct):
-            #             break
+
+        #     dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
+        #     for i, j in dir:
+        #         for ct in range(1, 7):
+        #             if self.it_is_player(r + i * ct, c + j * ct):
+        #                 if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
+        #                     print("W ", r, c, "can eat")
+        #                     return r + i * (ct + 1), c + j * (ct + 1), r + i * ct, c + j * ct, True
+        #                 else:
+        #                     break
+        #             elif self.it_is_bot(r + i * ct, c + j * ct):
+        #                 break
         return 0, 0, False
 
     def new_board(self):

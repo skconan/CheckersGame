@@ -73,23 +73,17 @@ class Map:
         return True
 
     def it_is_bot(self, r, c):
-        if self.out_of_range(r, c):
-            return False
-        elif 1 <= self.board[r][c] <= 8:
+        if not self.out_of_range(r, c) and 1 <= self.board[r][c] <= 8:
             return True
         return False
 
     def it_is_player(self, r, c):
-        if self.out_of_range(r, c):
-            return False
-        elif 9 <= self.board[r][c] <= 16:
+        if not self.out_of_range(r, c) and 9 <= self.board[r][c] <= 16:
             return True
         return False
 
     def it_is_blank(self, r, c):
-        if self.out_of_range(r, c):
-            return False
-        elif self.board[r][c] == 0:
+        if not self.out_of_range(r, c) and self.board[r][c] == 0:
             return True
         return False
 
@@ -105,9 +99,6 @@ class Map:
         delta_r = (r_current - r_origin)
         delta_c = (c_current - c_origin)
 
-        if self.basic_cannot_move(delta_r, delta_c):
-            return False
-
         c_step = int(delta_c / abs(delta_c))
         c_start = c_origin + c_step
         c_stop = c_current - c_step
@@ -116,7 +107,7 @@ class Map:
         r_start = r_origin + r_step
         r_stop = r_current - r_step
 
-        if not self.it_is_bot(r_stop, c_stop):
+        if self.basic_cannot_move(delta_r, delta_c) and not self.it_is_bot(r_stop, c_stop):
             return False
 
         if self.get_character(self.player_select) == 'r' and delta_r == -2:
@@ -227,7 +218,6 @@ class Control:
             for j in range(0, 8):
                 if (x - (TOP_LEFT[0] + j * BLOCK_SIZE))**2 + (y - (TOP_LEFT[1] - i * BLOCK_SIZE))**2 <= (BLOCK_SIZE / 2 - 1)**2:
                     r, c = i, j
-                    # print(r, c)
         return r, c
 
 
