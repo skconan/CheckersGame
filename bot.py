@@ -38,20 +38,16 @@ class Bot():
     def can_eat(self, r, c):
         if self.get_character(self.board[r][c]) == 'w':
             if self.it_is_player(r + 1, c + 1) and self.it_is_blank(r + 2, c + 2):
-                print("w ", r, c, "can eat")
                 return r + 2, c + 2, r + 1, c + 1,  True
             elif self.it_is_player(r + 1, c - 1) and self.it_is_blank(r + 2, c - 2):
-                print("w ", r, c, "can eat")
                 return r + 2, c - 2, r + 1, c - 1, True
 
         elif self.get_character(self.board[r][c]) == 'W':
-            print("W ", r, c, "maybe eat")
             dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
             for i, j in dir:
                 for ct in range(1, 7):
                     if self.it_is_player(r + i * ct, c + j * ct):
                         if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
-                            print("W ", r, c, "can eat")
                             return r + i * (ct + 1), c + j * (ct + 1), r + i * ct, c + j * ct, True
                         else:
                             break
@@ -67,10 +63,8 @@ class Bot():
     def can_walk(self, r, c):
         if self.get_character(self.board[r][c]) == 'w':
             if self.it_is_blank(r + 1, c + 1):
-                print("can walk ", r + 1, c + 1)
                 return r + 1, c + 1,  True
             elif self.it_is_blank(r + 1, c - 1):
-                print("can walk ", r + 1, c - 1)
                 return r + 1, c - 1, True
 
         elif self.get_character(self.board[r][c]) == 'W':
@@ -84,11 +78,9 @@ class Bot():
         return 0, 0, False
 
     def new_board(self):
-        # print("new_board")
         list_node = []
         list_node.append(Node())
         score = 0
-        ct = 0
         for r in range(0, 8):
             for c in range(0, 8):
                 if not self.it_is_bot(r, c):
@@ -113,28 +105,19 @@ class Bot():
                             list_node.pop()
 
                     if score == 3 or score == 2:
-                        # print("append 3 2")
-                        
-                        list_node.append(Node(self.board[r][c], score, r, c, r_w, c_w))
-                        ct+=1
-                        print("rw cw",ct,r_w,c_w)
+                        list_node.append(
+                            Node(self.board[r][c], score, r, c, r_w, c_w))
                     elif score == 4:
-                        # print("append 4")
-                        
-                        list_node.append(Node(self.board[r][c], score, r, c, r_e, c_e, r_eat, c_eat))
-                        ct+=1
-                        print("re ce",ct,r_e, c_e)
+                        list_node.append(
+                            Node(self.board[r][c], score, r, c, r_e, c_e, r_eat, c_eat))
         index = -1
         self.print_board()
-        # for i in list_node:
-        #     print("number ",i.number,"score",i.score)
         if(len(list_node) > 0):
             index = random.randrange(len(list_node))
-            print("Len",len(list_node))
-            print("index ",index,ct)
-            print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
-                "current1 ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
-            self.board[list_node[index].r_origin][list_node[index].c_origin] = 0
+            # print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
+            #       "current1 ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
+            self.board[list_node[index].r_origin][
+                list_node[index].c_origin] = 0
             if list_node[index].score == 4:
                 self.board[list_node[index].r_eat][list_node[index].c_eat] = 0
             self.board[
@@ -146,7 +129,6 @@ class Bot():
             print(self.board[i])
 
     def play(self, board_origin, player_origin):
-        # self.print_board(board_origin)
         self.board = board_origin
         self.player = player_origin
         self.new_board()

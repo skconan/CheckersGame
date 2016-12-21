@@ -202,7 +202,7 @@ class Map:
                 self.check_select = not self.check_select
                 if not self.can_eat(r, c):
                     self.status = "Bot"
-        print(self.status)
+                    
         if(self.status == "Bot"):
             self.board = self.bot.play(self.board, self.player)
             self.status = "Player"
