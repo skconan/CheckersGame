@@ -1,10 +1,11 @@
 import random
+
+
 class Bot():
 
     def __init__(self):
         self.board = []
         self.player = []
-        self.playagian = False
 
     def out_of_range(self, r, c):
         if 0 <= r <= 7 and 0 <= c <= 7:
@@ -90,45 +91,37 @@ class Bot():
                 if not self.it_is_bot(r, c):
                     continue
                 score = 0
-                r_current, c_current, r_eat, c_eat, eat_status = self.can_eat(
+                r_e, c_e, r_eat, c_eat, eat_status = self.can_eat(
                     r, c)
-                if self.playagian:
-                    if eat_status:
-                        if self.player_can_eat(r_current, c_current):
-                            score = 3
-                        else:
-                            score = 4
-                if not self.playagian:
-                    if eat_status:
-                        if self.player_can_eat(r_current, c_current):
-                            score = 3
-                            self.playagian = True
-                        else:
-                            score = 4
-                            self.playagian = True
-                    else:
-                        r_current, c_current, walk_status = self.can_walk(
-                            r, c)
-                        if walk_status:
-                            if self.player_can_eat(r_current, c_current):
-                                score = 1
-                            else:
-                                score = 2
+                r_w, c_w, walk_status = self.can_walk(r, c)
+
+                if eat_status and not self.player_can_eat(r_e, c_e):
+                    score = 4
+                    r_current, c_current = r_e, c_e
+                elif walk_status and not self.player_can_eat(r_w, c_w):
+                    score = 3
+                    r_current, c_current = r_w, c_w
+                elif eat_status:
+                    score = 2
+                    r_current, c_current = r_e, c_e
+                elif walk_status:
+                    score = 1
+                    r_current, c_current = r_w, c_w
 
                 if len(list_node) == 0 or (score >= list_node[-1].score):
                     if len(list_node) > 0 and score > list_node[-1].score:
                         list_node.pop()
-                    if score == 1 or score == 2:
+                    if score == 1 or score == 3:
                         list_node.append(Node(self.board[r][
                             c], score, r, c, r_current, c_current))
-                    elif score == 3 or score == 4:
+                    elif score == 4 or score == 2:
                         list_node.append(Node(self.board[r][
                             c], score, r, c, r_current, c_current, r_eat, c_eat))
         index = -1
         if(len(list_node) > 0):
             index = random.randrange(len(list_node))
-        print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
-              "current ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
+        # print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
+        #       "current ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
         self.board[list_node[index].r_origin][list_node[index].c_origin] = 0
         if list_node[index].score >= 3:
             self.board[list_node[index].r_eat][list_node[index].c_eat] = 0
@@ -143,11 +136,7 @@ class Bot():
         # self.print_board(board_origin)
         self.board = board_origin
         self.player = player_origin
-        self.playagian = False
         self.new_board()
-        if self.playagian:
-            self.new_board()
-        # self.print_board(tmp)
         return self.board
 
 
