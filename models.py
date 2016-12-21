@@ -98,7 +98,8 @@ class Map:
     def eat(self, r_origin, c_origin, r_current, c_current):
         delta_r = (r_current - r_origin)
         delta_c = (c_current - c_origin)
-
+        if self.basic_cannot_move(delta_r, delta_c):
+            return False
         c_step = int(delta_c / abs(delta_c))
         c_start = c_origin + c_step
         c_stop = c_current - c_step
@@ -107,14 +108,14 @@ class Map:
         r_start = r_origin + r_step
         r_stop = r_current - r_step
 
-        if self.basic_cannot_move(delta_r, delta_c) and not self.it_is_bot(r_stop, c_stop):
+        if not self.it_is_bot(r_stop, c_stop):
             return False
 
         if self.get_character(self.player_select) == 'r' and delta_r == -2:
             self.board[r_stop][c_stop] = 0
             return True
 
-        elif self.get_character(self.player_select) == 'R':
+        elif self.get_character(self.player_select) == 'R' and delta_r >= -2:
             for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
                 if not self.it_is_blank(r, c) and r != r_stop:
                     return False
