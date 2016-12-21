@@ -67,8 +67,10 @@ class Bot():
     def can_walk(self, r, c):
         if self.get_character(self.board[r][c]) == 'w':
             if self.it_is_blank(r + 1, c + 1):
+                print("can walk ", r + 1, c + 1)
                 return r + 1, c + 1,  True
             elif self.it_is_blank(r + 1, c - 1):
+                print("can walk ", r + 1, c - 1)
                 return r + 1, c - 1, True
 
         elif self.get_character(self.board[r][c]) == 'W':
@@ -82,11 +84,11 @@ class Bot():
         return 0, 0, False
 
     def new_board(self):
-        print("new_board")
+        # print("new_board")
         list_node = []
         list_node.append(Node())
         score = 0
-
+        ct = 0
         for r in range(0, 8):
             for c in range(0, 8):
                 if not self.it_is_bot(r, c):
@@ -102,40 +104,44 @@ class Bot():
                     score = 3
                 elif walk_status:
                     score = 2
-                
-                if score >= list_node[-1].score:
-                    print("score", score)
+
+                if score >= list_node[-1].score and (walk_status or eat_status):
                     if score > list_node[-1].score:
-                        print("pop")
                         while len(list_node) > 0:
                             if list_node[-1].score == score:
                                 break
                             list_node.pop()
 
                     if score == 3 or score == 2:
-                        print("append 3 2")
-                        list_node.append(Node(self.board[r][
-                            c], score, r, c, r_w, c_w))
+                        # print("append 3 2")
+                        
+                        list_node.append(Node(self.board[r][c], score, r, c, r_w, c_w))
+                        ct+=1
+                        print("rw cw",ct,r_w,c_w)
                     elif score == 4:
-                        print("append 4")
-                        list_node.append(Node(self.board[r][
-                            c], score, r, c, r_e, c_e, r_eat, c_eat))
+                        # print("append 4")
+                        
+                        list_node.append(Node(self.board[r][c], score, r, c, r_e, c_e, r_eat, c_eat))
+                        ct+=1
+                        print("re ce",ct,r_e, c_e)
         index = -1
-        for i in list_node:
-            print(i.score)
+        self.print_board()
+        # for i in list_node:
+        #     print("number ",i.number,"score",i.score)
         if(len(list_node) > 0):
             index = random.randrange(len(list_node))
-        print("Len",len(list_node))
-        print("index ",index)
-        print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
-              "current ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
-        self.board[list_node[index].r_origin][list_node[index].c_origin] = 0
-        if list_node[index].score == 4:
-            self.board[list_node[index].r_eat][list_node[index].c_eat] = 0
-        self.board[
-            list_node[index].r_current][list_node[index].c_current] = list_node[index].number
+            print("Len",len(list_node))
+            print("index ",index,ct)
+            print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
+                "current1 ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
+            self.board[list_node[index].r_origin][list_node[index].c_origin] = 0
+            if list_node[index].score == 4:
+                self.board[list_node[index].r_eat][list_node[index].c_eat] = 0
+            self.board[
+                list_node[index].r_current][list_node[index].c_current] = list_node[index].number
+            self.print_board()
 
-    def print_board(self, board):
+    def print_board(self):
         for i in range(0, 8):
             print(self.board[i])
 
