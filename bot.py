@@ -1,8 +1,10 @@
+import random
 class Bot():
 
     def __init__(self):
         self.board = []
         self.player = []
+        self.playagian = False
 
     def out_of_range(self, r, c):
         if 0 <= r <= 7 and 0 <= c <= 7:
@@ -64,30 +66,25 @@ class Bot():
     def can_walk(self, r, c):
         if self.get_character(self.board[r][c]) == 'w':
             if self.it_is_blank(r + 1, c + 1):
-                print("w ", r, c, "can walk")
                 return r + 1, c + 1,  True
             elif self.it_is_blank(r + 1, c - 1):
-                print("w ", r, c, "can walk")
                 return r + 1, c - 1, True
 
-        # elif self.get_character(self.board[r][c]) == 'W':
-
-        #     dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
-        #     for i, j in dir:
-        #         for ct in range(1, 7):
-        #             if self.it_is_player(r + i * ct, c + j * ct):
-        #                 if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
-        #                     print("W ", r, c, "can eat")
-        #                     return r + i * (ct + 1), c + j * (ct + 1), r + i * ct, c + j * ct, True
-        #                 else:
-        #                     break
-        #             elif self.it_is_bot(r + i * ct, c + j * ct):
-        #                 break
+        elif self.get_character(self.board[r][c]) == 'W':
+            dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
+            for i, j in dir:
+                for ct in range(1, 7):
+                    if self.it_is_blank(r + i * ct, c + j * ct):
+                        return r + i * ct, c + j * ct, True
+                    else:
+                        break
         return 0, 0, False
 
     def new_board(self):
         print("new_board")
-        max = Node()
+        list_node = []
+        list_node.append(Node())
+
         for r in range(0, 8):
             for c in range(0, 8):
                 if not self.it_is_bot(r, c):
@@ -95,35 +92,48 @@ class Bot():
                 score = 0
                 r_current, c_current, r_eat, c_eat, eat_status = self.can_eat(
                     r, c)
-                if eat_status:
-                    if self.player_can_eat(r_current, c_current):
-                        score = 3
-                    else:
-                        score = 4
-                else:
-                    r_current, c_current, walk_status = self.can_walk(
-                        r, c)
-                    if walk_status:
+                if self.playagian:
+                    if eat_status:
                         if self.player_can_eat(r_current, c_current):
-                            score = 1
+                            score = 3
                         else:
-                            score = 2
+                            score = 4
+                if not self.playagian:
+                    if eat_status:
+                        if self.player_can_eat(r_current, c_current):
+                            score = 3
+                            self.playagian = True
+                        else:
+                            score = 4
+                            self.playagian = True
+                    else:
+                        r_current, c_current, walk_status = self.can_walk(
+                            r, c)
+                        if walk_status:
+                            if self.player_can_eat(r_current, c_current):
+                                score = 1
+                            else:
+                                score = 2
 
-                if(score >= max.score):
+                if len(list_node) == 0 or (score >= list_node[-1].score):
+                    if len(list_node) > 0 and score > list_node[-1].score:
+                        list_node.pop()
                     if score == 1 or score == 2:
-                        max = Node(self.board[r][
-                            c], score, r, c, r_current, c_current)
+                        list_node.append(Node(self.board[r][
+                            c], score, r, c, r_current, c_current))
                     elif score == 3 or score == 4:
-                        max = Node(self.board[r][
-                            c], score, r, c, r_current, c_current, r_eat, c_eat)
-
-                    # print(max)
-        print("number", max.number, "origin ", max.r_origin, max.c_origin,
-              "current ", max.r_current, max.c_current, "score ", max.score)
-        self.board[max.r_origin][max.c_origin] = 0
-        if max.score >= 3:
-            self.board[max.r_eat][max.c_eat] = 0
-        self.board[max.r_current][max.c_current] = max.number
+                        list_node.append(Node(self.board[r][
+                            c], score, r, c, r_current, c_current, r_eat, c_eat))
+        index = -1
+        if(len(list_node) > 0):
+            index = random.randrange(len(list_node))
+        print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
+              "current ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
+        self.board[list_node[index].r_origin][list_node[index].c_origin] = 0
+        if list_node[index].score >= 3:
+            self.board[list_node[index].r_eat][list_node[index].c_eat] = 0
+        self.board[
+            list_node[index].r_current][list_node[index].c_current] = list_node[index].number
 
     def print_board(self, board):
         for i in range(0, 8):
@@ -133,7 +143,10 @@ class Bot():
         # self.print_board(board_origin)
         self.board = board_origin
         self.player = player_origin
+        self.playagian = False
         self.new_board()
+        if self.playagian:
+            self.new_board()
         # self.print_board(tmp)
         return self.board
 
