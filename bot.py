@@ -86,11 +86,13 @@ class Bot():
         list_node = []
         list_node.append(Node())
         score = 0
+
         for r in range(0, 8):
             for c in range(0, 8):
                 if not self.it_is_bot(r, c):
                     continue
-                
+                eat_status = False
+                walk_status = False
                 r_e, c_e, r_eat, c_eat, eat_status = self.can_eat(r, c)
                 r_w, c_w, walk_status = self.can_walk(r, c)
 
