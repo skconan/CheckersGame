@@ -60,39 +60,41 @@ class Bot():
         return 0, 0, 0, 0, False
 
     def player_can_eat(self, r, c, r_w, c_w):
-        r_p, c_p = r_w+1, c_w+1
+        r_p, c_p = r_w + 1, c_w + 1
         if self.it_is_player(r_p, c_p):
-            if c_p - c_w == c_w - c == 1: 
-                print("player can eat",r,c)
+            if c_p - c_w == c_w - c == 1:
                 return True
-            elif self.it_is_player(r+2, c) and self.it_is_blank(r,c-2):
+            elif self.it_is_player(r + 2, c) and self.it_is_blank(r, c - 2):
                 return True
 
-        r_p, c_p = r_w+1, c_w-1
+        r_p, c_p = r_w + 1, c_w - 1
         if self.it_is_player(r_p, c_p):
-            if c_p - c_w == c_w - c == 1: 
-                print("player can eat",r,c)
+            if c_p - c_w == c_w - c == -1:
                 return True
-            elif self.it_is_player(r+2, c) and self.it_is_blank(r,c+2):
+            elif self.it_is_player(r + 2, c) and self.it_is_blank(r, c + 2):
                 return True
 
         return False
 
     def can_walk(self, r, c):
         if self.get_character(self.board[r][c]) == 'w':
-            if self.it_is_blank(r + 1, c + 1):
-                return r + 1, c + 1,  True
-            if self.it_is_blank(r + 1, c - 1):
-                return r + 1, c - 1, True
+            if self.it_is_blank(r + 1, c + 1) and not self.player_can_eat(r, c, r + 1, c + 1):
+                return r + 1, c + 1, True, False
+            elif self.it_is_blank(r + 1, c - 1) and not self.player_can_eat(r, c, r + 1, c - 1):
+                return r + 1, c - 1, True, False
+            elif self.it_is_blank(r + 1, c + 1) and self.player_can_eat(r, c, r + 1, c + 1):
+                return r + 1, c + 1, True, True
+            elif self.it_is_blank(r + 1, c - 1) and self.player_can_eat(r, c, r + 1, c - 1):
+                return r + 1, c - 1, True, True
 
         elif self.get_character(self.board[r][c]) == 'W':
             for i, j in const.DIR:
                 for ct in range(1, 7):
                     if self.it_is_blank(r + i * ct, c + j * ct):
-                        return r + i * ct, c + j * ct, True
+                        return r + i * ct, c + j * ct, True, True
                     else:
                         break
-        return 0, 0, False
+        return 0, 0, False, False
 
     def new_board(self):
         list_node = []
@@ -104,12 +106,13 @@ class Bot():
                     continue
                 eat_status = False
                 walk_status = False
+                player_eat = False
                 r_e, c_e, r_eat, c_eat, eat_status = self.can_eat(r, c)
-                r_w, c_w, walk_status = self.can_walk(r, c)
+                r_w, c_w, walk_status, player_eat = self.can_walk(r, c)
 
                 if eat_status:
                     score = 4
-                elif walk_status and not self.player_can_eat(r,c,r_w, c_w) and self.loop == 0:
+                elif walk_status and not player_eat and self.loop == 0:
                     score = 3
                 elif walk_status and self.loop == 0:
                     score = 2
@@ -123,19 +126,15 @@ class Bot():
                     if score == 3 or score == 2:
                         list_node.append(
                             Node(self.board[r][c], score, r, c, r_w, c_w))
-                        print("=> ", score, r, c, r_w, c_w)
                     elif score == 4:
                         list_node.append(
                             Node(self.board[r][c], score, r, c, r_e, c_e, r_eat, c_eat))
         index = -1
-        # self.print_board()
-        self.loop = 0
+
         while len(list_node) > 0 and list_node[-1].r_current == 0 and list_node[-1].c_current == 0:
             list_node.pop()
         if len(list_node) > 0:
             index = random.randrange(len(list_node))
-            print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
-                  "current1 ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
             self.board[list_node[index].r_origin][
                 list_node[index].c_origin] = 0
             if list_node[index].score == 4:
@@ -145,11 +144,13 @@ class Bot():
             self.board[
                 list_node[index].r_current][list_node[index].c_current] = list_node[index].number
         else:
-            self.loop = 0
+            if self.loop == 0:
+                self.score.increase('p')
+        self.loop = 0
 
     def print_board(self):
         for i in range(0, 8):
-            print(self.board[i], ",")
+            print(self.board[i])
 
     def play(self, board_origin, player_origin, score):
         self.board = board_origin
@@ -158,7 +159,6 @@ class Bot():
         self.new_board()
         self.score = score
         while self.loop > 0:
-            print("while")
             self.new_board()
         return self.board
 
