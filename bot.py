@@ -46,8 +46,8 @@ class Bot():
                 return r + 2, c + 2, r + 1, c + 1,  True
             elif self.it_is_player(r + 1, c - 1) and self.it_is_blank(r + 2, c - 2):
                 return r + 2, c - 2, r + 1, c - 1, True
-        elif self.get_character(self.board[r][c]) == 'W':
 
+        elif self.get_character(self.board[r][c]) == 'W':
             for i, j in const.DIR:
                 for ct in range(1, 7):
                     if self.it_is_player(r + i * ct, c + j * ct):
@@ -59,16 +59,30 @@ class Bot():
                         break
         return 0, 0, 0, 0, False
 
-    def player_can_eat(self, r, c):
-        if self.it_is_player(r + 1, c + 1) or self.it_is_player(r + 1, c - 1):
-            return True
+    def player_can_eat(self, r, c, r_w, c_w):
+        r_p, c_p = r_w+1, c_w+1
+        if self.it_is_player(r_p, c_p):
+            if c_p - c_w == c_w - c == 1: 
+                print("player can eat",r,c)
+                return True
+            elif self.it_is_player(r+2, c) and self.it_is_blank(r,c-2):
+                return True
+
+        r_p, c_p = r_w+1, c_w-1
+        if self.it_is_player(r_p, c_p):
+            if c_p - c_w == c_w - c == 1: 
+                print("player can eat",r,c)
+                return True
+            elif self.it_is_player(r+2, c) and self.it_is_blank(r,c+2):
+                return True
+
         return False
 
     def can_walk(self, r, c):
         if self.get_character(self.board[r][c]) == 'w':
             if self.it_is_blank(r + 1, c + 1):
                 return r + 1, c + 1,  True
-            elif self.it_is_blank(r + 1, c - 1):
+            if self.it_is_blank(r + 1, c - 1):
                 return r + 1, c - 1, True
 
         elif self.get_character(self.board[r][c]) == 'W':
@@ -95,7 +109,7 @@ class Bot():
 
                 if eat_status:
                     score = 4
-                elif walk_status and not self.player_can_eat(r_w, c_w) and self.loop == 0:
+                elif walk_status and not self.player_can_eat(r,c,r_w, c_w) and self.loop == 0:
                     score = 3
                 elif walk_status and self.loop == 0:
                     score = 2
@@ -114,7 +128,7 @@ class Bot():
                         list_node.append(
                             Node(self.board[r][c], score, r, c, r_e, c_e, r_eat, c_eat))
         index = -1
-        self.print_board()
+        # self.print_board()
         self.loop = 0
         while len(list_node) > 0 and list_node[-1].r_current == 0 and list_node[-1].c_current == 0:
             list_node.pop()
@@ -132,7 +146,7 @@ class Bot():
                 list_node[index].r_current][list_node[index].c_current] = list_node[index].number
         else:
             self.loop = 0
-        
+
     def print_board(self):
         for i in range(0, 8):
             print(self.board[i], ",")
