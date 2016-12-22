@@ -7,6 +7,8 @@ class CheckerGameWindow(arcade.Window):
 
     def __init__(self, width, height):
         super().__init__(width, height)
+        self.world = World()
+        self.worldRenderer = WorldRenderer(self.world)
         self.src = ["images/start.fw.png", "images/board.fw.png",
                     "images/win.fw.png", "images/lose.fw.png"]
         self.texture = []
@@ -15,9 +17,11 @@ class CheckerGameWindow(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_texture_rectangle(const.SCREEN_WIDTH // 2, const.SCREEN_HEIGHT // 2,
+        arcade.draw_texture_rectangle(const.SCREEN_WIDTH // 2,
+                                      const.SCREEN_HEIGHT // 2,
                                       self.texture[const.GAME_STATE].width,
-                                      self.texture[const.GAME_STATE].height, self.texture[const.GAME_STATE], 0)
+                                      self.texture[const.GAME_STATE].height,
+                                      self.texture[const.GAME_STATE], 0)
         if const.GAME_STATE == 1:
             self.worldRenderer.on_draw()
 
@@ -31,7 +35,8 @@ class CheckerGameWindow(arcade.Window):
             self.worldRenderer = WorldRenderer(self.world)
             const.GAME_STATE = 1
         else:
-            self.world.on_mouse_release(x, y, button, modifiers)
+            self.world.on_mouse_release(x, y, button)
+
 
 if __name__ == '__main__':
     window = CheckerGameWindow(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
