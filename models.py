@@ -1,16 +1,17 @@
 import arcade
 import arcade.key
 from bot import Bot
-
+from score import Score
 
 SCREEN_HEIGHT = 700
 BLOCK_SIZE = 79
-TOP_LEFT = (237, SCREEN_HEIGHT - 75)
-
+TOP_LEFT = (274, SCREEN_HEIGHT - 75)
 
 class Map:
-
+    
     def __init__(self):
+        super().__init__()
+        self.score = Score()
         self.player = []
         self.check_select = False
         self.r_select = -1
@@ -27,12 +28,14 @@ class Map:
                       [0, -1, 0, -1, 0, -1, 0, -1],
                       [-1, 9, -1, 10, -1, 11, -1, 12],
                       [13, -1, 14, -1, 15, -1, 16, -1]]
+      
 
     def animate(self, delta):
-        self.update_player()
+        pass
 
     def on_draw(self):
         self.draw_player()
+        self.score.on_draw()
 
     def generate_player(self):
         self.player.append(0)
@@ -186,7 +189,7 @@ class Map:
             self.player_select = self.board[r][c]
             self.board[r][c] = 0
             self.check_select = not self.check_select
-
+            
         elif self.check_select and [self.r_select, self.c_select] == [r, c]:
             self.board[r][c] = self.player_select
             self.check_select = not self.check_select
@@ -198,15 +201,17 @@ class Map:
                 self.status = "Bot"
 
             elif self.eat(self.r_select, self.c_select, r, c):
+                self.score.increase('p')
                 self.board[r][c] = self.player_select
                 self.check_select = not self.check_select
                 if not self.can_eat(r, c):
                     self.status = "Bot"
-                    
-        if(self.status == "Bot"):
-            self.board = self.bot.play(self.board, self.player)
-            self.status = "Player"
 
+        if(self.status == "Bot"):
+            self.board = self.bot.play(self.board, self.player, self.score)
+            self.status = "Player"
+        print(self.status)
+        self.update_player()
 
 class Control:
 
@@ -220,7 +225,11 @@ class Control:
                 if (x - (TOP_LEFT[0] + j * BLOCK_SIZE))**2 + (y - (TOP_LEFT[1] - i * BLOCK_SIZE))**2 <= (BLOCK_SIZE / 2 - 1)**2:
                     r, c = i, j
         return r, c
-
+    
+    def click_in_board(self, x, y):
+        if 200 < x < 830 and 40 < y < 670:
+            return True
+        return False
 
 class Player():
 
@@ -253,17 +262,14 @@ class World:
         self.control = Control()
         self.map = Map()
         self.map.generate_player()
+        
 
     def animate(self, delta):
         self.map.animate(delta)
-
-    def click_in_board(self, x, y):
-        if 200 < x < 830 and 40 < y < 670:
-            return True
-        return False
+        
 
     def on_mouse_release(self, x, y, button, modifiers):
-        if button == arcade.MOUSE_BUTTON_LEFT and self.click_in_board(x, y):
+        if button == arcade.MOUSE_BUTTON_LEFT and self.control.click_in_board(x, y):
             r, c = self.control.get_mouse_position_map(x, y)
             self.map.select_player(r, c)
             self.left_down = False
