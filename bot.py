@@ -3,6 +3,7 @@ from score import Score
 import constants as const
 import time
 
+
 class Bot():
 
     def __init__(self):
