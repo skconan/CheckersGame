@@ -1,11 +1,9 @@
 import arcade
 import arcade.key
+import constants as const
 from bot import Bot
 from score import Score
 
-SCREEN_HEIGHT = 700
-BLOCK_SIZE = 79
-TOP_LEFT = (274, SCREEN_HEIGHT - 75)
 
 class Map:
     
@@ -43,10 +41,10 @@ class Map:
             for c in range(0, 8):
                 if 1 <= self.board[r][c] <= 8:
                     self.player.append(
-                        Player(TOP_LEFT[0] + c * BLOCK_SIZE, TOP_LEFT[1] - r * BLOCK_SIZE, 'w'))
+                        Player(const.TOP_LEFT[0] + c * const.BLOCK_SIZE, const.TOP_LEFT[1] - r * const.BLOCK_SIZE, 'w'))
                 elif 8 < self.board[r][c] <= 16:
                     self.player.append(
-                        Player(TOP_LEFT[0] + c * BLOCK_SIZE, TOP_LEFT[1] - r * BLOCK_SIZE, 'r'))
+                        Player(const.TOP_LEFT[0] + c * const.BLOCK_SIZE, const.TOP_LEFT[1] - r * const.BLOCK_SIZE, 'r'))
 
     def draw_player(self):
         for r in range(0, 8):
@@ -68,7 +66,7 @@ class Map:
                 if 1 <= self.board[r][c] <= 16:
                     self.update_king(r, c)
                     self.player[self.board[r][c]].player.set_position(
-                        TOP_LEFT[0] + c * BLOCK_SIZE, TOP_LEFT[1] - r * BLOCK_SIZE)
+                        const.TOP_LEFT[0] + c * const.BLOCK_SIZE, const.TOP_LEFT[1] - r * const.BLOCK_SIZE)
 
     def out_of_range(self, r, c):
         if 0 <= r <= 7 and 0 <= c <= 7:
@@ -222,7 +220,8 @@ class Control:
         r, c = -1, -1
         for i in range(0, 8):
             for j in range(0, 8):
-                if (x - (TOP_LEFT[0] + j * BLOCK_SIZE))**2 + (y - (TOP_LEFT[1] - i * BLOCK_SIZE))**2 <= (BLOCK_SIZE / 2 - 1)**2:
+                if ((x - (const.TOP_LEFT[0] + j * const.BLOCK_SIZE))**2 + (y - 
+                (const.TOP_LEFT[1] - i * const.BLOCK_SIZE))**2 <= (const.BLOCK_SIZE / 2 - 1)**2):
                     r, c = i, j
         return r, c
     
