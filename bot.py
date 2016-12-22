@@ -129,12 +129,12 @@ class Bot():
                     elif score == 4:
                         list_node.append(
                             Node(self.board[r][c], score, r, c, r_e, c_e, r_eat, c_eat))
-        index = -1
 
         while len(list_node) > 0 and list_node[-1].r_current == 0 and list_node[-1].c_current == 0:
             list_node.pop()
         if len(list_node) > 0:
-            index = random.randrange(len(list_node))
+            # index = random.randrange(len(list_node))
+            index = -1
             self.board[list_node[index].r_origin][
                 list_node[index].c_origin] = 0
             if list_node[index].score == 4:
