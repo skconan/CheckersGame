@@ -3,7 +3,6 @@ import constants as const
 from player import Player
 from bot import Bot
 from score import Score
-import time
 
 
 class Pos:
@@ -224,7 +223,7 @@ class Map:
         if(self.status == "Bot"):
             self.board = self.bot.play(self.board, self.pieces, self.score)
             self.status = "Player"
-        time.sleep(0.1)
+
         self.update_pieces()
 
 
