@@ -1,4 +1,6 @@
 import random
+from score import Score
+import constants as const
 
 
 class Bot():
@@ -7,7 +9,7 @@ class Bot():
         self.board = []
         self.player = []
         self.loop = 0
-        self.score = 0
+        self.score = Score()
 
     def out_of_range(self, r, c):
         if 0 <= r <= 7 and 0 <= c <= 7:
@@ -45,8 +47,8 @@ class Bot():
                 return r + 2, c - 2, r + 1, c - 1, True
 
         elif self.get_character(self.board[r][c]) == 'W':
-            dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
-            for i, j in dir:
+
+            for i, j in const.DIR:
                 for ct in range(1, 7):
                     if self.it_is_player(r + i * ct, c + j * ct):
                         if self.it_is_blank(r + i * (ct + 1), c + j * (ct + 1)):
@@ -70,8 +72,7 @@ class Bot():
                 return r + 1, c - 1, True
 
         elif self.get_character(self.board[r][c]) == 'W':
-            dir = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
-            for i, j in dir:
+            for i, j in const.DIR:
                 for ct in range(1, 7):
                     if self.it_is_blank(r + i * ct, c + j * ct):
                         return r + i * ct, c + j * ct, True
@@ -98,7 +99,7 @@ class Bot():
                     score = 3
                 elif walk_status and self.loop == 0:
                     score = 2
-                
+
                 if score >= list_node[-1].score and (walk_status or eat_status):
                     if score > list_node[-1].score:
                         while len(list_node) > 0:
@@ -108,7 +109,7 @@ class Bot():
                     if score == 3 or score == 2:
                         list_node.append(
                             Node(self.board[r][c], score, r, c, r_w, c_w))
-                        print("=> ",score, r, c, r_w, c_w)
+                        print("=> ", score, r, c, r_w, c_w)
                     elif score == 4:
                         list_node.append(
                             Node(self.board[r][c], score, r, c, r_e, c_e, r_eat, c_eat))
@@ -129,11 +130,12 @@ class Bot():
                 self.score.increase('b')
             self.board[
                 list_node[index].r_current][list_node[index].c_current] = list_node[index].number
-        else :
+        else:
             self.loop = 0
+
     def print_board(self):
         for i in range(0, 8):
-            print(self.board[i],",")
+            print(self.board[i], ",")
 
     def play(self, board_origin, player_origin, score):
         self.board = board_origin
