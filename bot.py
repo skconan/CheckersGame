@@ -91,7 +91,7 @@ class Bot():
             for i, j in const.DIR:
                 for ct in range(1, 7):
                     if self.it_is_blank(r + i * ct, c + j * ct):
-                        return r + i * ct, c + j * ct, True, True
+                        return r + i * ct, c + j * ct, True, False
                     else:
                         break
         return 0, 0, False, False
@@ -146,7 +146,7 @@ class Bot():
         else:
             if self.loop == 0:
                 self.score.increase('p')
-        self.loop = 0
+            self.loop = 0
 
     def print_board(self):
         for i in range(0, 8):
