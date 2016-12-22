@@ -7,7 +7,8 @@ class CheckerGameWindow(arcade.Window):
 
     def __init__(self, width, height):
         super().__init__(width, height)
-        self.src = ["images/start.fw.png","images/board.fw.png","images/win.fw.png","images/lose.fw.png"]
+        self.src = ["images/start.fw.png", "images/board.fw.png",
+                    "images/win.fw.png", "images/lose.fw.png"]
         self.texture = []
         for src in self.src:
             self.texture.append(arcade.load_texture(src))
@@ -29,9 +30,9 @@ class CheckerGameWindow(arcade.Window):
             self.world = World()
             self.worldRenderer = WorldRenderer(self.world)
             const.GAME_STATE = 1
-        else :
+        else:
             self.world.on_mouse_release(x, y, button, modifiers)
-        
+
 if __name__ == '__main__':
     window = CheckerGameWindow(const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
     arcade.run()
