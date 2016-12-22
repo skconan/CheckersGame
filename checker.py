@@ -7,7 +7,7 @@ class CheckerGameWindow(arcade.Window):
 
     def __init__(self, width, height):
         super().__init__(width, height)
-        self.src = ["images/start.fw.png","images/board.fw.png"]
+        self.src = ["images/start.fw.png","images/board.fw.png","images/win.fw.png"]
         self.texture = []
         for src in self.src:
             self.texture.append(arcade.load_texture(src))
@@ -25,7 +25,7 @@ class CheckerGameWindow(arcade.Window):
             self.world.animate(delta)
 
     def on_mouse_release(self, x, y, button, modifiers):
-        if const.GAME_STATE == 0:
+        if const.GAME_STATE != 1:
             self.world = World()
             self.worldRenderer = WorldRenderer(self.world)
             const.GAME_STATE = 1

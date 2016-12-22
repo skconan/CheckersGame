@@ -22,7 +22,7 @@ class Score:
         else:
             self.score_bot += 1
         if self.score_player == 8:
-            const.GAME_STATE = 0
+            const.GAME_STATE = 2
         self.update_img()
 
     def on_draw(self):
