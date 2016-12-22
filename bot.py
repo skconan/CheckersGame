@@ -1,7 +1,7 @@
 import random
 from score import Score
 import constants as const
-
+import time
 
 class Bot():
 
@@ -45,7 +45,6 @@ class Bot():
                 return r + 2, c + 2, r + 1, c + 1,  True
             elif self.it_is_player(r + 1, c - 1) and self.it_is_blank(r + 2, c - 2):
                 return r + 2, c - 2, r + 1, c - 1, True
-
         elif self.get_character(self.board[r][c]) == 'W':
 
             for i, j in const.DIR:
@@ -132,7 +131,7 @@ class Bot():
                 list_node[index].r_current][list_node[index].c_current] = list_node[index].number
         else:
             self.loop = 0
-
+        
     def print_board(self):
         for i in range(0, 8):
             print(self.board[i], ",")
