@@ -4,4 +4,3 @@ BLOCK_SIZE = 79
 TOP_LEFT = (274, SCREEN_HEIGHT - 75)
 GAME_STATE = 0
 DIR = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
-DIR_BOT_EAT = [[[1,2],[1,2]],[[1,2],[-1,-2]]]
