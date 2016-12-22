@@ -116,7 +116,7 @@ class Map:
             self.board[r_stop][c_stop] = 0
             return True
 
-        elif self.get_character(self.player_select) == 'R' and delta_r >= -2:
+        elif self.get_character(self.player_select) == 'R' and abs(delta_r) >= 2:
             for r, c in zip(range(r_start, r_stop, r_step), range(c_start, c_stop, c_step)):
                 if not self.it_is_blank(r, c) and r != r_stop:
                     return False
