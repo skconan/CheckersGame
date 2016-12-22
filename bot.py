@@ -6,6 +6,8 @@ class Bot():
     def __init__(self):
         self.board = []
         self.player = []
+        self.loop = 0
+        self.score = 0
 
     def out_of_range(self, r, c):
         if 0 <= r <= 7 and 0 <= c <= 7:
@@ -92,46 +94,56 @@ class Bot():
 
                 if eat_status:
                     score = 4
-                elif walk_status and not self.player_can_eat(r_w, c_w):
+                elif walk_status and not self.player_can_eat(r_w, c_w) and self.loop == 0:
                     score = 3
-                elif walk_status:
+                elif walk_status and self.loop == 0:
                     score = 2
-
+                
                 if score >= list_node[-1].score and (walk_status or eat_status):
                     if score > list_node[-1].score:
                         while len(list_node) > 0:
                             if list_node[-1].score == score:
                                 break
                             list_node.pop()
-
                     if score == 3 or score == 2:
                         list_node.append(
                             Node(self.board[r][c], score, r, c, r_w, c_w))
+                        print("=> ",score, r, c, r_w, c_w)
                     elif score == 4:
                         list_node.append(
                             Node(self.board[r][c], score, r, c, r_e, c_e, r_eat, c_eat))
         index = -1
         self.print_board()
-        if(len(list_node) > 0):
+        self.loop = 0
+        while len(list_node) > 0 and list_node[-1].r_current == 0 and list_node[-1].c_current == 0:
+            list_node.pop()
+        if len(list_node) > 0:
             index = random.randrange(len(list_node))
-            # print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
-            #       "current1 ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
+            print("number", list_node[index].number, "origin ", list_node[index].r_origin, list_node[index].c_origin,
+                  "current1 ", list_node[index].r_current, list_node[index].c_current, "score ", list_node[index].score)
             self.board[list_node[index].r_origin][
                 list_node[index].c_origin] = 0
             if list_node[index].score == 4:
                 self.board[list_node[index].r_eat][list_node[index].c_eat] = 0
+                self.loop = 1
+                self.score.increase('b')
             self.board[
                 list_node[index].r_current][list_node[index].c_current] = list_node[index].number
-            self.print_board()
-
+        else :
+            self.loop = 0
     def print_board(self):
         for i in range(0, 8):
-            print(self.board[i])
+            print(self.board[i],",")
 
-    def play(self, board_origin, player_origin):
+    def play(self, board_origin, player_origin, score):
         self.board = board_origin
         self.player = player_origin
+        self.loop = 0
         self.new_board()
+        self.score = score
+        while self.loop > 0:
+            print("while")
+            self.new_board()
         return self.board
 
 
