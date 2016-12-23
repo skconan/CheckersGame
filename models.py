@@ -3,7 +3,7 @@ import constants as const
 from player import Player
 from bot import Bot
 from score import Score
-
+from control import Control
 
 class Pos:
 
@@ -39,6 +39,8 @@ class Map:
     def on_draw(self):
         self.draw_pieces()
         self.score.on_draw()
+        if self.eat_status:
+            arcade.draw_text("Need to eat", const.SCREEN_WIDTH - 190 , const.SCREEN_HEIGHT/2 + 200, arcade.color.WHITE,22)
 
     def out_of_range(self, r, c):
         if 0 <= r <= 7 and 0 <= c <= 7:
@@ -207,6 +209,8 @@ class Map:
             self.check_select = not self.check_select
 
         elif self.check_select and self.it_is_blank(r, c):
+            
+
             if (self.walk(self.select.r, self.select.c, r, c)
                     and not self.eat_status):
                 self.board[r][c] = self.player_select
@@ -225,34 +229,6 @@ class Map:
             self.status = "Player"
 
         self.update_pieces()
-
-
-class Control:
-
-    def __init__(self):
-        pass
-
-    def get_mouse_position_map(self, x, y):
-        r, c = -1, -1
-        radius_block = (const.BLOCK_SIZE / 2 - 1)**2
-        pos_squared = Pos()
-        for i in range(0, 8):
-            for j in range(0, 8):
-                pos_squared.r = (y - (const.TOP_LEFT[1]
-                                      - i * const.BLOCK_SIZE))**2
-                pos_squared.c = (x - (const.TOP_LEFT[0]
-                                      + j * const.BLOCK_SIZE))**2
-                radius_mouse = pos_squared.r + pos_squared.c
-
-                if (radius_mouse <= radius_block):
-                    r, c = i, j
-        return r, c
-
-    def click_in_board(self, x, y):
-        if 225 < x < 880 and 25 < y < 680:
-            return True
-        return False
-
 
 class World:
 
