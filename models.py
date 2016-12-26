@@ -39,8 +39,8 @@ class Map:
     def on_draw(self):
         self.draw_pieces()
         self.score.on_draw()
-        if self.eat_status:
-            arcade.draw_text("Need to eat", const.SCREEN_WIDTH - 190 , const.SCREEN_HEIGHT/2 + 200, arcade.color.WHITE,22)
+        # if self.eat_status:
+        #     arcade.draw_text("Need to eat", const.SCREEN_WIDTH - 190 , const.SCREEN_HEIGHT/2 + 200, arcade.color.WHITE,22)
 
     def out_of_range(self, r, c):
         if 0 <= r <= 7 and 0 <= c <= 7:
