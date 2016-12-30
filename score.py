@@ -20,15 +20,16 @@ class Score:
         self.bot_text.set_position(120, const.SCREEN_HEIGHT / 2 + 100)
 
     def increase(self, character):
+        if self.score_player == 8:
+            const.GAME_STATE = 2
+        elif self.score_bot == 8:
+            const.GAME_STATE = 3
         if character == 'p':
             self.score_player += 1
         else:
             self.score_bot += 1
 
-        if self.score_player == 8:
-            const.GAME_STATE = 2
-        elif self.score_bot == 8:
-            const.GAME_STATE = 3
+        
 
         self.update_img()
 

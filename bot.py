@@ -94,6 +94,17 @@ class Bot():
                         return r + i * ct, c + j * ct, True, False
                     else:
                         break
+        # elif self.get_character(self.board[r][c]) == 'W':
+        #     rows, cols = [], []
+        #     for i, j in const.DIR:
+        #         for ct in range(1, 7):
+        #             if self.it_is_blank(r + i * ct, c + j * ct):
+        #                 rows.append(r + i * ct)
+        #                 cols.append(c + j * ct)
+        #             else:
+        #                 if len(rows) > 0:
+        #                     return rows[-1], cols[-1], True, False
+        # return 0, 0, False, False
         return 0, 0, False, False
 
     def new_board(self):
